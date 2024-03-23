@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { UserEntity } from './user.entity';
 import { UserRepository } from './user.repository';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserInfoDto } from './dto/create-user-info.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(private usersRepository: UserRepository) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    const data = {
-      ...createUserDto
-    }
-    return await this.userRepository.save(data);
+  async getUserById(id: string): Promise<any> {
+    return this.usersRepository.findOneById(id);
   }
+
+  async create(userInfo: CreateUserInfoDto): Promise<any> {
+    console.log('userInfo:', userInfo)
+    return this.usersRepository.create(userInfo);
+  }
+
+
+  // 여기에 더 많은 비즈니스 로직 구현
 }
