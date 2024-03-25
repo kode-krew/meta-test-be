@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable, Inject } from '@nestjs/common';
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserRepository {
@@ -22,8 +23,10 @@ export class UserRepository {
 
   async create(userInfo: any): Promise<any> {
     const id = uuidv4();
+    const hashedPassword = await bcrypt.hash(userInfo.password, 10);
     const item = {
       ...userInfo,
+      password: hashedPassword,
       Id: id,
       SortKey: `UserInfo#${id}`
     }

@@ -2,9 +2,7 @@ import { Controller, Post, Get, Body, Param, HttpCode, HttpStatus } from '@nestj
 import { UserService } from './user.service';
 import { CreateUserInfoDto } from './dto/create-user-info.dto';
 
-@Controller({
-    path: 'users'
-})
+@Controller({path: 'users'})
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
