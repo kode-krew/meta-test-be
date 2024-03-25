@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
-import { HealthCheckController } from './health-check/health-check.controller';
+import { HealthCheckController } from './modules/health-check/health-check.controller';
 import { DynamoDBModule } from './database/dynamodb/dynamodb.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { UserModule } from './user/user.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
