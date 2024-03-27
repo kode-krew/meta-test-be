@@ -6,8 +6,6 @@ git clone https://github.com/kode-krew/meta-test-be.git
 
 ```
 
-<br>   
-   
 ### .env 설정
 ```js
 touch ./.env
