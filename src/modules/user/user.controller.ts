@@ -1,24 +1,28 @@
-import { Controller, Post, Get, Patch, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { Controller, Request, Post, Get, Patch, Body, Param, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
 import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
 import { GetUserInfoResponseDto } from './dto/get-user-info-response.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
 import { UpdateUserInfoResponseDto } from './dto/update-user-info-response.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('users')
 @Controller({path: 'users'})
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    @Get(':id')
+    @Get()
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
     @ApiOperation({ summary: '유저 정보 조회', description: '' })
     @ApiResponse({ status: 200, description: 'OK', type: GetUserInfoResponseDto})
     // @ApiResponse({ status: 403, description: 'Forbidden.'})
     @HttpCode(HttpStatus.OK)
-    async getUser(@Param('id') id: string){
-    return await this.userService.getUserById(id);
+    async getUser(@Request() req){
+        const id = req.user.Id;
+        return await this.userService.getUserById(id);
     }
 
     @Post()
@@ -31,13 +35,16 @@ export class UserController {
     return await this.userService.create(createUserInfoDto);
     }
 
-    @Patch(':id')
+    @Patch()
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
     @ApiOperation({ summary: '유저 정보 수정', description: '' })
     @ApiResponse({ status: 200, description: 'OK', type: UpdateUserInfoResponseDto})
     // @ApiResponse({ status: 400, description: 'Bad request'})
     
     @HttpCode(HttpStatus.OK)
-    async updateUser(@Param('id') id: string, @Body() updateUserInfoDto: UpdateUserInfoRequestDto){
-    return await this.userService.update(id, updateUserInfoDto);
+    async updateUser(@Request() req, @Body() updateUserInfoDto: UpdateUserInfoRequestDto){
+        const id = req.user.Id;
+        return await this.userService.update(id, updateUserInfoDto);
     }
 }
