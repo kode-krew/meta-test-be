@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UnauthorizedException } from '@nestjs/common';
 import { CreateTokenRequestDto } from './dto/create-token-request.dto';
+import { RefreshTokenRequestDto } from './dto/refresh-token-request.dto';
 import { AuthRepository } from './auth.repository';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -27,10 +28,31 @@ export class AuthService {
     // JWT 토큰 생성
     const payload = { Id: user.Id, SortKey: user.SortKey };
     return {
-      access_token: this.jwtService.sign(payload),
-      refresh_token: this.jwtService.sign(payload, { expiresIn: '30d' }), 
+      access_token: this.jwtService.sign({...payload, isRefreshToken: false}),
+      refresh_token: this.jwtService.sign({...payload, isRefreshToken: true}, { expiresIn: '30d' }), 
     };
+  }
 
-    // 여기에 더 많은 비즈니스 로직 구현
+  async refreshToken(refreshTokenInfoDto: RefreshTokenRequestDto): Promise<any> {
+      let payload;
+      const refreshToken = refreshTokenInfoDto.refresh_token;
+
+      try {
+          payload = this.jwtService.verify(refreshToken);
+
+          if (!payload.isRefreshToken) {
+            throw new UnauthorizedException('Invalid token');
+          }
+
+      } catch (error) {
+          throw new UnauthorizedException('Invalid token');
+      }
+  
+      // JWT 토큰 생성
+      payload = { Id: payload.Id, SortKey: payload.SortKey };
+      return {
+        access_token: this.jwtService.sign({...payload, isRefreshToken: false}),
+        refresh_token: this.jwtService.sign({...payload, isRefreshToken: true}, { expiresIn: '30d' }), 
+      };
   }
 }
