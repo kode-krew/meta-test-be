@@ -14,7 +14,7 @@ export class TestRepository {
   async getTestWords(lang: string): Promise<any> {
     try {
       const env = process.env.NODE_ENV;
-      const tableName = (env === 'dev' ? 'Dev_' : '') + 'Test';
+      const tableName = (env === 'dev' ? 'Dev_' : '') + 'Word';
       const result = await this.dynamoDb.query({
         TableName: tableName,
         KeyConditionExpression: 'Id = :id',
