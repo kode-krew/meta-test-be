@@ -1,8 +1,13 @@
-import { Min, Max, IsString, IsInt, IsIn, IsArray } from 'class-validator';
+import { Min, Max, IsString, IsInt, IsIn, IsArray, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUserTestRequestDto {
+export class CreateTestRequestDto {
+    @IsOptional()
+    @IsString()
+    @ApiProperty({example: '422838ab-3a92-4e5f-914c-5eae24249a92', description: 'Id'})
+    Id?: string;
+
     @IsString()
     @IsIn(['beginner', 'intermediate', 'advanced'])
     @ApiProperty({example: 'beginner', description: 'level'})

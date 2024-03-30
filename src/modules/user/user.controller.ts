@@ -7,8 +7,6 @@ import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
 import { GetUserInfoResponseDto } from './dto/get-user-info-response.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
 import { UpdateUserInfoResponseDto } from './dto/update-user-info-response.dto';
-import { CreateUserTestRequestDto } from './dto/create-user-test-request.dto';
-import { CreateUserTestResponseDto } from './dto/create-user-test-response.dto';
 
 @ApiTags('users')
 @Controller({path: 'users'})
@@ -50,16 +48,4 @@ export class UserController {
         return await this.userService.update(id, updateUserInfoDto);
     }
 
-    @Post(':user_id/test')
-    @UseGuards(AuthGuard('jwt'))
-    @ApiBearerAuth()
-    @ApiOperation({ summary: '유저 테스트 결과 등록', description: '' })
-    @ApiResponse({ status: 201, description: 'Success', type: CreateUserTestResponseDto})
-    // @ApiResponse({ status: 400, description: 'Bad request'})
-    
-    @HttpCode(HttpStatus.CREATED)
-    async createUserTest(@Request() req, @Body() createUserTestRequestDto: CreateUserTestRequestDto){
-        const id = req.user.Id;
-        return await this.userService.createUserTest(id, createUserTestRequestDto);
-    }
 }

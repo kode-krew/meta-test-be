@@ -2,6 +2,11 @@ import { IsEmail, IsNotEmpty, MinLength, IsString, IsNumber, IsOptional } from '
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserInfoRequestDto {
+    @IsOptional()
+    @IsString()
+    @ApiProperty({example: '422838ab-3a92-4e5f-914c-5eae24249a92', description: 'Id'})
+    Id: string;
+    
     @IsEmail()
     @IsNotEmpty()
     @ApiProperty({required: true, example: 'john.doe@example.com', description: 'The email of the user'})
