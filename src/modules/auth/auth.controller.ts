@@ -16,7 +16,7 @@ export class AuthController {
     @ApiResponse({ status: 201, description: 'Created', type: CreateTokenResponseDto})
     // @ApiResponse({ status: 400, description: 'Bad request'})
     
-    @HttpCode(HttpStatus.OK)
+    @HttpCode(HttpStatus.CREATED)
     async createToken(@Body() createTokenInfoDto: CreateTokenRequestDto){
     return await this.authService.create(createTokenInfoDto);
     }
@@ -26,7 +26,7 @@ export class AuthController {
     @ApiResponse({ status: 201, description: 'Created', type: RefreshTokenResponseDto})
     // @ApiResponse({ status: 400, description: 'Bad request'})
     
-    @HttpCode(HttpStatus.OK)
+    @HttpCode(HttpStatus.CREATED)
     async refreshToken(@Body() refreshTokenInfoDto: RefreshTokenRequestDto){
     return await this.authService.refreshToken(refreshTokenInfoDto);
     }

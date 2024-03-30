@@ -1,12 +1,14 @@
 import { Controller, Request, Post, Get, Patch, Body, Param, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from './user.service';
+import { AuthGuard } from '@nestjs/passport';
 import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
 import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
 import { GetUserInfoResponseDto } from './dto/get-user-info-response.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
 import { UpdateUserInfoResponseDto } from './dto/update-user-info-response.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { CreateUserTestRequestDto } from './dto/create-user-test-request.dto';
+import { CreateUserTestResponseDto } from './dto/create-user-test-response.dto';
 
 @ApiTags('users')
 @Controller({path: 'users'})
@@ -46,5 +48,18 @@ export class UserController {
     async updateUser(@Request() req, @Body() updateUserInfoDto: UpdateUserInfoRequestDto){
         const id = req.user.Id;
         return await this.userService.update(id, updateUserInfoDto);
+    }
+
+    @Post(':user_id/test')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiBearerAuth()
+    @ApiOperation({ summary: '유저 테스트 결과 등록', description: '' })
+    @ApiResponse({ status: 201, description: 'Success', type: CreateUserTestResponseDto})
+    // @ApiResponse({ status: 400, description: 'Bad request'})
+    
+    @HttpCode(HttpStatus.CREATED)
+    async createUserTest(@Request() req, @Body() createUserTestRequestDto: CreateUserTestRequestDto){
+        const id = req.user.Id;
+        return await this.userService.createUserTest(id, createUserTestRequestDto);
     }
 }

@@ -3,6 +3,8 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
+import { CreateUserTestRequestDto } from './dto/create-user-test-request.dto';
+import { CreateUserTestResponseDto } from './dto/create-user-test-response.dto';
 
 @Injectable()
 export class UserService {
@@ -32,5 +34,12 @@ export class UserService {
     const { password, SortKey, ...result } = user;
     return result
   }
-  // 여기에 더 많은 비즈니스 로직 구현
+
+  async createUserTest(id: string, userTest: CreateUserTestRequestDto): Promise<any> {
+    const item = await this.usersRepository.createUserTest(id, userTest);
+    console.log('item:', item);
+    const { password, SortKey, ...result } = item;
+    return result
+  }
+
 }
