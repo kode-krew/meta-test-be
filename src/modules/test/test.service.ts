@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { TestRepository } from './test.repository';
-import { GetTestWordsQueryDto } from './dto/get-test-words-query.dto';
-import { CreateTestRequestDto } from './dto/create-test-request.dto';
+import { Injectable } from "@nestjs/common";
+import { NotFoundException, BadRequestException } from "@nestjs/common";
+import { TestRepository } from "./test.repository";
+import { GetTestWordsQueryDto } from "./dto/get-test-words-query.dto";
+import { CreateTestRequestDto } from "./dto/create-test-request.dto";
 
 @Injectable()
 export class TestService {
@@ -19,8 +19,8 @@ export class TestService {
 
   async createTest(data: CreateTestRequestDto): Promise<any> {
     const item = await this.testRepository.createTest(data);
-    console.log('item:', item);
+    console.log("item:", item);
     const { SortKey, ...result } = item;
-    return result
+    return result;
   }
 }

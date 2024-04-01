@@ -1,24 +1,23 @@
-import { v4 as uuidv4 } from 'uuid';
-import { Injectable, Inject } from '@nestjs/common';
-import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
-import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from "uuid";
+import { Injectable, Inject } from "@nestjs/common";
+import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UserRepository {
   private tableName: string;
-  constructor(@Inject('DYNAMODB') private dynamoDb: DynamoDBDocument) {
+  constructor(@Inject("DYNAMODB") private dynamoDb: DynamoDBDocument) {
     const env = process.env.NODE_ENV;
-    this.tableName = (env === 'dev' ? 'Dev_' : '') + 'UserInfoTest';
+    this.tableName = (env === "dev" ? "Dev_" : "") + "UserInfoTest";
   }
 
   async findOneById(id: string): Promise<any> {
-
     const result = await this.dynamoDb.get({
       // TableName: this.tableName,
       TableName: this.tableName,
-      Key: { 
+      Key: {
         Id: id,
-        SortKey: `UserInfo#${id}`
+        SortKey: `UserInfo#${id}`,
       },
     });
     const { Item, ...$metadata } = result;
@@ -27,13 +26,13 @@ export class UserRepository {
 
   async findOneByEmail(email: string): Promise<any> {
     const result = await this.dynamoDb.query({
-        TableName: this.tableName,
-        IndexName: 'email-index',
-        KeyConditionExpression: 'email = :email',
-        ExpressionAttributeValues: {
-        ':email': email,
-        },
-    })
+      TableName: this.tableName,
+      IndexName: "email-index",
+      KeyConditionExpression: "email = :email",
+      ExpressionAttributeValues: {
+        ":email": email,
+      },
+    });
     return result.Items ? result.Items[0] : null;
   }
 
@@ -42,31 +41,30 @@ export class UserRepository {
     if (!id) {
       id = uuidv4();
     }
-    
+
     const hashedPassword = await bcrypt.hash(userInfo.password, 10);
-    const createdAt = new Date().toISOString()
+    const createdAt = new Date().toISOString();
     const item = {
       Id: id,
       SortKey: `UserInfo#${id}`,
       ...userInfo,
       password: hashedPassword,
-      createdAt
-    }
+      createdAt,
+    };
 
     await this.dynamoDb.put({
       TableName: this.tableName,
-      Item: item
+      Item: item,
     });
 
     return item;
   }
-  
+
   async update(id: string, userInfo: any): Promise<any> {
-    
     // Building the update expression
-    let updateExpression = 'set';
-    let ExpressionAttributeNames = {};
-    let ExpressionAttributeValues = {};
+    let updateExpression = "set";
+    const ExpressionAttributeNames = {};
+    const ExpressionAttributeValues = {};
     for (const property in userInfo) {
       updateExpression += ` #${property} = :${property},`;
       ExpressionAttributeNames[`#${property}`] = property;
@@ -76,17 +74,16 @@ export class UserRepository {
 
     const result = await this.dynamoDb.update({
       TableName: this.tableName,
-      Key: { 
-        Id: id, 
-        SortKey: `UserInfo#${id}` 
+      Key: {
+        Id: id,
+        SortKey: `UserInfo#${id}`,
       },
       UpdateExpression: updateExpression,
       ExpressionAttributeNames: ExpressionAttributeNames,
       ExpressionAttributeValues: ExpressionAttributeValues,
-      ReturnValues: "ALL_NEW" // return updated all data
-    })
+      ReturnValues: "ALL_NEW", // return updated all data
+    });
 
     return result.Attributes;
   }
-
 }
