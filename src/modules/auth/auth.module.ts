@@ -7,6 +7,7 @@ import { DynamoDBModule } from "../../database/dynamodb/dynamodb.module";
 import { JwtStrategy } from "../../auth/jwt/jwt.strategy";
 import { PassportModule } from "@nestjs/passport";
 import { UserModule } from "../user/user.module";
+import { KakaoStrategy } from "src/auth/strategy/kakao.strategy";
 
 @Module({
   imports: [
@@ -20,6 +21,8 @@ import { UserModule } from "../user/user.module";
   ],
 
   controllers: [AuthController],
-  providers: [AuthService, AuthRepository, JwtStrategy],
+  providers: [AuthService, AuthRepository, JwtStrategy, KakaoStrategy],
 })
 export class AuthModule {}
+
+

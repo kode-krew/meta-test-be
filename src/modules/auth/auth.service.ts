@@ -1,10 +1,13 @@
-import { Injectable } from "@nestjs/common";
-import { UnauthorizedException } from "@nestjs/common";
-import { CreateTokenRequestDto } from "./dto/create-token-request.dto";
-import { RefreshTokenRequestDto } from "./dto/refresh-token-request.dto";
-import { AuthRepository } from "./auth.repository";
-import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from "bcrypt";
+import { Injectable } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
+import { CreateTokenRequestDto } from './dto/create-token-request.dto';
+import { RefreshTokenRequestDto } from './dto/refresh-token-request.dto';
+import { AuthRepository } from './auth.repository';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { CreateTokenResponseDto } from './dto/create-token-response.dto';
+import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
+import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -41,6 +44,8 @@ export class AuthService {
     };
   }
 
+
+
   async refreshToken(
     refreshTokenInfoDto: RefreshTokenRequestDto,
   ): Promise<any> {
@@ -67,4 +72,17 @@ export class AuthService {
       ),
     };
   }
+
+
+
+  async OAuthLogin(socialLoginDto: SocialLoginRequestDto): Promise<CreateTokenResponseDto> {
+    const { email, password } = socialLoginDto;
+    // const email = 'test3@email.com';
+
+    return await this.create({ email, password })
+  }
 }
+
+
+
+
