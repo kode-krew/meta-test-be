@@ -1,13 +1,5 @@
 {
-<<<<<<< HEAD
-  "semi": true,
-  "singleQuote": false,
-  "tabWidth": 2,
-  "trailingComma": "all",
-  "printWidth": 80
-=======
   "singleQuote": true,
   "trailingComma": "all",
   "printWidth": 120
->>>>>>> bc13bc2 (add eslint and prettier config)
 }

@@ -9,16 +9,11 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
       //NOTE: 아래는 Optional
       //   clientSecret: process.env.KAKAO_CLIENT_SECRET,
       callbackURL: process.env.KAKAO_CALLBACK_URL,
-      // scope: ['account_email', 'profile_nickname'],
-      scope: ['profile_nickname'],
+      scope: ['account_email', 'profile_nickname'],
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile): Promise<SocialLoginRequestDto> {
-    console.log('accessToken: ', accessToken);
-    console.log('refreshToken: ', refreshToken);
-    console.log(profile);
-
     return {
       email: profile._json.kakao_account.email,
       password: String(profile.id),
