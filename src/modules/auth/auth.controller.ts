@@ -9,6 +9,7 @@ import { Response } from 'express';
 import { KakaoAuthGuard } from 'src/auth/guard/kakao.auth.guard';
 import { SocialLoginResponseDto } from './dto/social-login-response.dto';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
+import { GoogleAuthGuard } from 'src/auth/guard/google.auth.guard';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -71,6 +72,17 @@ export class AuthController {
   @UseGuards(KakaoAuthGuard)
   @Get('login/kakao')
   async loginWithKakao(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<SocialLoginResponseDto> {
+    const user = req['user'] as SocialLoginRequestDto;
+
+    return await this.authService.OAuthLogin(user);
+  }
+
+  @UseGuards(GoogleAuthGuard)
+  @Get('login/google')
+  async loginWithGoogle(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<SocialLoginResponseDto> {

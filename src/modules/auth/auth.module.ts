@@ -10,6 +10,7 @@ import { UserModule } from '../user/user.module';
 import { KakaoStrategy } from 'src/auth/strategy/kakao.strategy';
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
+import { GoogleStrategy } from 'src/auth/strategy/google.strategy';
 
 @Module({
   imports: [
@@ -23,6 +24,6 @@ import { UserRepository } from '../user/user.repository';
   ],
 
   controllers: [AuthController],
-  providers: [AuthService, UserService, UserRepository, AuthRepository, JwtStrategy, KakaoStrategy],
+  providers: [AuthService, UserService, UserRepository, AuthRepository, JwtStrategy, KakaoStrategy, GoogleStrategy],
 })
 export class AuthModule {}
