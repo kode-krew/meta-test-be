@@ -3,6 +3,7 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
+import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
 
 @Injectable()
 export class UserService {
@@ -17,7 +18,7 @@ export class UserService {
     return result;
   }
 
-  async create(userInfo: CreateUserInfoRequestDto): Promise<any> {
+  async create(userInfo: CreateUserInfoRequestDto): Promise<CreateUserInfoResponseDto> {
     const user = await this.usersRepository.findOneByEmail(userInfo.email);
 
     if (user) {

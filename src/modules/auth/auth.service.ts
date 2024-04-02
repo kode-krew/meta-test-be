@@ -9,6 +9,7 @@ import { CreateTokenResponseDto } from './dto/create-token-response.dto';
 import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { UserService } from '../user/user.service';
+import { CreateUserInfoResponseDto } from '../user/dto/create-user-info-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -63,7 +64,7 @@ export class AuthService {
     };
   }
 
-  async OAuthLogin(socialLoginDto: SocialLoginRequestDto): Promise<CreateTokenResponseDto> {
+  async OAuthLogin(socialLoginDto: SocialLoginRequestDto): Promise<CreateTokenResponseDto | CreateUserInfoResponseDto> {
     const { email, password } = socialLoginDto;
 
     const user = await this.validateUser(email, password);

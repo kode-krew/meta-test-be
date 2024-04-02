@@ -7,9 +7,9 @@ import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { KakaoAuthGuard } from 'src/auth/guard/kakao.auth.guard';
-import { SocialLoginResponseDto } from './dto/social-login-response.dto';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { GoogleAuthGuard } from 'src/auth/guard/google.auth.guard';
+import { CreateUserInfoResponseDto } from '../user/dto/create-user-info-response.dto';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -69,23 +69,33 @@ export class AuthController {
     return res.status(HttpStatus.CREATED).send();
   }
 
+  @ApiOperation({ summary: '카카오 소셜로그인', description: '기가입 유저는 로그인, 신규 유저는 회원가입 진행' })
+  @ApiResponse({
+    status: 201,
+    description: 'Created',
+  })
   @UseGuards(KakaoAuthGuard)
   @Get('login/kakao')
   async loginWithKakao(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<SocialLoginResponseDto> {
+  ): Promise<CreateTokenResponseDto | CreateUserInfoResponseDto> {
     const user = req['user'] as SocialLoginRequestDto;
 
     return await this.authService.OAuthLogin(user);
   }
 
+  @ApiOperation({ summary: '구글 소셜로그인', description: '기가입 유저는 로그인, 신규 유저는 회원가입 진행' })
+  @ApiResponse({
+    status: 201,
+    description: 'Created',
+  })
   @UseGuards(GoogleAuthGuard)
   @Get('login/google')
   async loginWithGoogle(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<SocialLoginResponseDto> {
+  ): Promise<CreateTokenResponseDto | CreateUserInfoResponseDto> {
     const user = req['user'] as SocialLoginRequestDto;
 
     return await this.authService.OAuthLogin(user);
