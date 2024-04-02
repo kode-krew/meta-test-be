@@ -19,7 +19,6 @@ export class TestService {
 
   async createTest(data: CreateTestRequestDto): Promise<any> {
     const item = await this.testRepository.createTest(data);
-    console.log("item:", item);
     const { SortKey, ...result } = item;
     return result;
   }

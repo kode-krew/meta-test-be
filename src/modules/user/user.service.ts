@@ -3,6 +3,7 @@ import { NotFoundException, BadRequestException } from "@nestjs/common";
 import { UserRepository } from "./user.repository";
 import { CreateUserInfoRequestDto } from "./dto/create-user-info-request.dto";
 import { UpdateUserInfoRequestDto } from "./dto/update-user-info-request.dto";
+import { GetUserTestQueryDto } from "./dto/get-user-test-query.dto";
 
 @Injectable()
 export class UserService {
@@ -39,5 +40,24 @@ export class UserService {
     const user = await this.usersRepository.update(id, userInfo);
     const { password, SortKey, ...result } = user;
     return result;
+  }
+
+  async getUserTest(id: string, query: GetUserTestQueryDto): Promise<any> {
+    const limit = query.limit;
+    const encodedStartKey = query.startkey;
+    let startKey: any;
+    if (encodedStartKey) {
+      const decodedString = Buffer.from(encodedStartKey, "base64").toString(
+        "utf-8",
+      );
+      startKey = JSON.parse(decodedString);
+    }
+
+    const userTest = await this.usersRepository.findUserTest(
+      id,
+      limit,
+      startKey,
+    );
+    return userTest;
   }
 }

@@ -86,4 +86,39 @@ export class UserRepository {
 
     return result.Attributes;
   }
+
+  async findUserTest(id: string, limit: number, startKey?: any): Promise<any> {
+    const params = {
+      TableName: this.tableName,
+      KeyConditionExpression:
+        "#id = :id and begins_with(#sortKey, :sortKeyPrefix)",
+      ExpressionAttributeNames: {
+        "#id": "Id",
+        "#sortKey": "SortKey",
+      },
+      ExpressionAttributeValues: {
+        ":id": id,
+        ":sortKeyPrefix": "Test#",
+      },
+      Limit: limit, // pagination limit
+      ExclusiveStartKey: startKey, // previous last key
+      ScanIndexForward: false, // order = desc
+    };
+
+    try {
+      const result = await this.dynamoDb.query(params);
+      return {
+        items: result.Items,
+        count: result.Count,
+        lastEvaluatedKey: result.LastEvaluatedKey
+          ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
+              "base64",
+            )
+          : null,
+      };
+    } catch (error) {
+      console.error("Server error", error);
+      throw error;
+    }
+  }
 }
