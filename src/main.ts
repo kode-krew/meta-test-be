@@ -9,7 +9,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // set CORS
   app.enableCors({
-    origin: '*',
+    origin:true,
+    credentials:true,
+    exposedHeaders:['Authorization']
   });
   // set swagger module
   const config = new DocumentBuilder()
@@ -29,7 +31,6 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.use(cookieParser());
-
   // set port
   const port =
     process.env.NODE_ENV === 'dev'
