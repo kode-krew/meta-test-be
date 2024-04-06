@@ -11,6 +11,7 @@ import { KakaoStrategy } from 'src/auth/strategy/kakao.strategy';
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
 import { GoogleStrategy } from 'src/auth/strategy/google.strategy';
+import { forwardRef } from '@nestjs/common';
 
 @Module({
   imports: [
@@ -22,7 +23,6 @@ import { GoogleStrategy } from 'src/auth/strategy/google.strategy';
     }),
     UserModule,
   ],
-
   controllers: [AuthController],
   providers: [
     AuthService,
@@ -32,6 +32,8 @@ import { GoogleStrategy } from 'src/auth/strategy/google.strategy';
     JwtStrategy,
     KakaoStrategy,
     GoogleStrategy,
+    UserRepository,
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}

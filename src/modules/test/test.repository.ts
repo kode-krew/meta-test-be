@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable, Inject } from '@nestjs/common';
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
-import { calculateScoreAndCorrectWords } from 'src/core/functions/calculate-score-and-correct-words';
+import { calculateScoreAndCorrectWords } from 'src/core/utils/calculate-score-and-correct-words.util';
 
 @Injectable()
 export class TestRepository {

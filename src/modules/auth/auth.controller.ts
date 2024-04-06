@@ -22,6 +22,7 @@ import { KakaoAuthGuard } from 'src/auth/guard/kakao.auth.guard';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { GoogleAuthGuard } from 'src/auth/guard/google.auth.guard';
 import { CreateUserInfoResponseDto } from '../user/dto/create-user-info-response.dto';
+import { ResetPasswordRequestDto } from './dto/reset-password-request.dto';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -128,5 +129,21 @@ export class AuthController {
     const user = req['user'] as SocialLoginRequestDto;
 
     return await this.authService.OAuthLogin(user);
+  }
+
+  @Patch('password')
+  @ApiOperation({
+    summary: '비밀번호 초기화',
+    description: '비밀번호 변경하고 이메일로 전송합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'OK',
+  })
+  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @HttpCode(HttpStatus.OK)
+  async updateUserPassword(@Body() body: ResetPasswordRequestDto) {
+    const email = body.email;
+    return await this.authService.resetUserPassword(email);
   }
 }

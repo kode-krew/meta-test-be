@@ -13,7 +13,7 @@ export class UserService {
   async getUserById(id: string): Promise<any> {
     const user = await this.usersRepository.findOneById(id);
     if (!user) {
-      throw new NotFoundException('user does not exists');
+      throw new NotFoundException('User does not exists');
     }
 
     const responseItem = {
@@ -32,7 +32,7 @@ export class UserService {
     const user = await this.usersRepository.findOneByEmail(userInfo.email);
 
     if (user) {
-      throw new NotFoundException('user exist');
+      throw new NotFoundException('User exist');
     }
 
     const item = await this.usersRepository.create(userInfo);

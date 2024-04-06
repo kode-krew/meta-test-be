@@ -1,5 +1,5 @@
 // 메타 인지 검사 점수 계산
-export function calculateScoreAndCorrectWords(data: any) {
+export const calculateScoreAndCorrectWords = (data: any) => {
   const correctWords = data.total_words.filter((word) =>
     data.input_words.includes(word),
   );
@@ -10,4 +10,4 @@ export function calculateScoreAndCorrectWords(data: any) {
     score,
     correct_words: correctWords,
   };
-}
+};
