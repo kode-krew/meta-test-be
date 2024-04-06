@@ -1,9 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { NotFoundException, BadRequestException } from "@nestjs/common";
-import { UserRepository } from "./user.repository";
-import { CreateUserInfoRequestDto } from "./dto/create-user-info-request.dto";
-import { UpdateUserInfoRequestDto } from "./dto/update-user-info-request.dto";
-import { GetUserTestQueryDto } from "./dto/get-user-test-query.dto";
+import { Injectable } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { UserRepository } from './user.repository';
+import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
+import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
+import { GetUserTestQueryDto } from './dto/get-user-test-query.dto';
+import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
 
 @Injectable()
 export class UserService {
@@ -12,17 +13,19 @@ export class UserService {
   async getUserById(id: string): Promise<any> {
     const user = await this.usersRepository.findOneById(id);
     if (!user) {
-      throw new NotFoundException("user does not exists");
+      throw new NotFoundException('user does not exists');
     }
     const { password, SortKey, ...result } = user;
     return result;
   }
 
-  async create(userInfo: CreateUserInfoRequestDto): Promise<any> {
+  async create(
+    userInfo: CreateUserInfoRequestDto,
+  ): Promise<CreateUserInfoResponseDto> {
     const user = await this.usersRepository.findOneByEmail(userInfo.email);
 
     if (user) {
-      throw new NotFoundException("user exist");
+      throw new NotFoundException('user exist');
     }
 
     const item = await this.usersRepository.create(userInfo);
@@ -33,7 +36,7 @@ export class UserService {
   async update(id: string, userInfo: UpdateUserInfoRequestDto): Promise<any> {
     if (!userInfo || Object.keys(userInfo).length === 0) {
       throw new BadRequestException(
-        "At least one of nickname, gender, age is required.",
+        'At least one of nickname, gender, age is required.',
       );
     }
 
@@ -47,8 +50,8 @@ export class UserService {
     const encodedStartKey = query.startkey;
     let startKey: any;
     if (encodedStartKey) {
-      const decodedString = Buffer.from(encodedStartKey, "base64").toString(
-        "utf-8",
+      const decodedString = Buffer.from(encodedStartKey, 'base64').toString(
+        'utf-8',
       );
       startKey = JSON.parse(decodedString);
     }

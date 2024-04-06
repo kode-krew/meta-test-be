@@ -5,12 +5,18 @@ import { RefreshTokenRequestDto } from "./dto/refresh-token-request.dto";
 import { AuthRepository } from "./auth.repository";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
+import { CreateTokenResponseDto } from "./dto/create-token-response.dto";
+import { RefreshTokenResponseDto } from "./dto/refresh-token-response.dto";
+import { SocialLoginRequestDto } from "./dto/social-login-request.dto";
+import { UserService } from "../user/user.service";
+import { CreateUserInfoResponseDto } from "../user/dto/create-user-info-response.dto";
 
 @Injectable()
 export class AuthService {
   constructor(
     private authRepository: AuthRepository,
     private jwtService: JwtService,
+    private userService: UserService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -22,7 +28,9 @@ export class AuthService {
     return null;
   }
 
-  async create(userInfo: CreateTokenRequestDto): Promise<any> {
+  async create(
+    userInfo: CreateTokenRequestDto,
+  ): Promise<CreateTokenResponseDto> {
     const user = await this.validateUser(userInfo.email, userInfo.password);
     if (!user) {
       throw new UnauthorizedException(
@@ -43,7 +51,7 @@ export class AuthService {
 
   async refreshToken(
     refreshTokenInfoDto: RefreshTokenRequestDto,
-  ): Promise<any> {
+  ): Promise<RefreshTokenResponseDto> {
     let payload;
     const refreshToken = refreshTokenInfoDto.refresh_token;
 
@@ -66,5 +74,20 @@ export class AuthService {
         { expiresIn: "30d" },
       ),
     };
+  }
+
+  async OAuthLogin(
+    socialLoginDto: SocialLoginRequestDto,
+  ): Promise<CreateTokenResponseDto | CreateUserInfoResponseDto> {
+    const { email, password } = socialLoginDto;
+
+    const user = await this.validateUser(email, password);
+
+    if (user) {
+      //1.기존 가입 유저라면, token create
+      return await this.create({ email, password });
+    }
+    //2. 신규 유저라면 회원가입
+    return await this.userService.create({ email, password });
   }
 }
