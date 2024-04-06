@@ -1,23 +1,22 @@
-import { v4 as uuidv4 } from "uuid";
-import { Injectable, Inject } from "@nestjs/common";
-import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
-import * as bcrypt from "bcrypt";
+import { v4 as uuidv4 } from 'uuid';
+import { Injectable, Inject } from '@nestjs/common';
+import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserRepository {
   private tableName: string;
-  constructor(@Inject("DYNAMODB") private dynamoDb: DynamoDBDocument) {
-    const env = process.env.NODE_ENV;
-    this.tableName = (env === "dev" ? "Dev_" : "") + "UserInfoTest";
+  constructor(@Inject('DYNAMODB') private dynamoDb: DynamoDBDocument) {
+    this.tableName = process.env.AWS_DYNAMODB_TABLE_NAME;
   }
 
   async findOneById(id: string): Promise<any> {
+    console.log('id:', id);
     const result = await this.dynamoDb.get({
-      // TableName: this.tableName,
       TableName: this.tableName,
       Key: {
-        Id: id,
-        SortKey: `UserInfo#${id}`,
+        PK: id,
+        SK: `UserInfo#${id}`,
       },
     });
     const { Item, ...$metadata } = result;
@@ -27,17 +26,17 @@ export class UserRepository {
   async findOneByEmail(email: string): Promise<any> {
     const result = await this.dynamoDb.query({
       TableName: this.tableName,
-      IndexName: "email-index",
-      KeyConditionExpression: "email = :email",
+      IndexName: 'email-index',
+      KeyConditionExpression: 'email = :email',
       ExpressionAttributeValues: {
-        ":email": email,
+        ':email': email,
       },
     });
     return result.Items ? result.Items[0] : null;
   }
 
   async create(userInfo: any): Promise<any> {
-    let id = userInfo.Id;
+    let id = userInfo.id;
     if (!id) {
       id = uuidv4();
     }
@@ -45,8 +44,8 @@ export class UserRepository {
     const hashedPassword = await bcrypt.hash(userInfo.password, 10);
     const createdAt = new Date().toISOString();
     const item = {
-      Id: id,
-      SortKey: `UserInfo#${id}`,
+      PK: id,
+      SK: `UserInfo#${id}`,
       ...userInfo,
       password: hashedPassword,
       createdAt,
@@ -62,7 +61,7 @@ export class UserRepository {
 
   async update(id: string, userInfo: any): Promise<any> {
     // Building the update expression
-    let updateExpression = "set";
+    let updateExpression = 'set';
     const ExpressionAttributeNames = {};
     const ExpressionAttributeValues = {};
     for (const property in userInfo) {
@@ -75,13 +74,13 @@ export class UserRepository {
     const result = await this.dynamoDb.update({
       TableName: this.tableName,
       Key: {
-        Id: id,
-        SortKey: `UserInfo#${id}`,
+        PK: id,
+        SK: `UserInfo#${id}`,
       },
       UpdateExpression: updateExpression,
       ExpressionAttributeNames: ExpressionAttributeNames,
       ExpressionAttributeValues: ExpressionAttributeValues,
-      ReturnValues: "ALL_NEW", // return updated all data
+      ReturnValues: 'ALL_NEW', // return updated all data
     });
 
     return result.Attributes;
@@ -90,15 +89,14 @@ export class UserRepository {
   async findUserTest(id: string, limit: number, startKey?: any): Promise<any> {
     const params = {
       TableName: this.tableName,
-      KeyConditionExpression:
-        "#id = :id and begins_with(#sortKey, :sortKeyPrefix)",
+      KeyConditionExpression: '#pk = :id and begins_with(#sk, :sortKeyPrefix)',
       ExpressionAttributeNames: {
-        "#id": "Id",
-        "#sortKey": "SortKey",
+        '#pk': 'PK',
+        '#sk': 'SK',
       },
       ExpressionAttributeValues: {
-        ":id": id,
-        ":sortKeyPrefix": "Test#",
+        ':id': id,
+        ':sortKeyPrefix': 'Test#',
       },
       Limit: limit, // pagination limit
       ExclusiveStartKey: startKey, // previous last key
@@ -112,12 +110,12 @@ export class UserRepository {
         count: result.Count,
         lastEvaluatedKey: result.LastEvaluatedKey
           ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
-              "base64",
+              'base64',
             )
           : null,
       };
     } catch (error) {
-      console.error("Server error", error);
+      console.error('Server error', error);
       throw error;
     }
   }

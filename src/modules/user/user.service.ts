@@ -15,8 +15,15 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('user does not exists');
     }
-    const { password, SortKey, ...result } = user;
-    return result;
+
+    const responseItem = {
+      id: user.PK,
+      ...user,
+    };
+    delete responseItem.PK;
+    delete responseItem.SK;
+    delete responseItem.password;
+    return responseItem;
   }
 
   async create(
@@ -29,8 +36,15 @@ export class UserService {
     }
 
     const item = await this.usersRepository.create(userInfo);
-    const { password, SortKey, ...result } = item;
-    return result;
+
+    const responseItem = {
+      id: item.PK,
+      ...item,
+    };
+    delete responseItem.PK;
+    delete responseItem.SK;
+    delete responseItem.password;
+    return responseItem;
   }
 
   async update(id: string, userInfo: UpdateUserInfoRequestDto): Promise<any> {
@@ -41,8 +55,15 @@ export class UserService {
     }
 
     const user = await this.usersRepository.update(id, userInfo);
-    const { password, SortKey, ...result } = user;
-    return result;
+
+    const responseItem = {
+      id: user.PK,
+      ...user,
+    };
+    delete responseItem.PK;
+    delete responseItem.SK;
+    delete responseItem.password;
+    return responseItem;
   }
 
   async getUserTest(id: string, query: GetUserTestQueryDto): Promise<any> {

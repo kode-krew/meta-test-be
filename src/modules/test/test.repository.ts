@@ -7,12 +7,11 @@ import { calculateScoreAndCorrectWords } from 'src/core/functions/calculate-scor
 export class TestRepository {
   private tableName: string;
   constructor(@Inject('DYNAMODB') private dynamoDb: DynamoDBDocument) {
-    const env = process.env.NODE_ENV;
-    this.tableName = (env === 'dev' ? 'Dev_' : '') + 'UserInfoTest';
+    this.tableName = process.env.AWS_DYNAMODB_TABLE_NAME;
   }
 
   async createTest(data: any): Promise<any> {
-    let id = data.Id;
+    let id = data.id;
 
     if (!id) {
       id = uuidv4();
@@ -22,8 +21,8 @@ export class TestRepository {
     const createdAt = new Date().toISOString();
     const category = 'test';
     const item = {
-      Id: id,
-      SortKey: `Test#${createdAt}`,
+      PK: id,
+      SK: `Test#${createdAt}`,
       ...data,
       ...testResult,
       category,
