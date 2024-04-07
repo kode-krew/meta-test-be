@@ -144,7 +144,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await this.userRepository.update(user.PK, { password: hashedPassword });
-    console.log('newPassword:', newPassword);
+
     // 사용자에게 이메일 전송
     const htmlContent = readHtmlFile(
       join(__dirname, '../../../static/templates/password-reset-email.html'),
@@ -154,6 +154,29 @@ export class AuthService {
     await this.sendEmail(
       email,
       '[Metacognition] Your password has been reset',
+      htmlContent,
+    );
+  }
+
+  async sendCode(email: string): Promise<void> {
+    const user = await this.userRepository.findOneByEmail(email);
+    if (user) {
+      throw new BadRequestException('Invalid email');
+    }
+
+    const item = await this.authRepository.createAuthentication(email);
+    const token = item.PK;
+    const baseUrl = process.env.BASE_URL;
+
+    // 사용자에게 이메일 전송
+    const htmlContent = readHtmlFile(
+      join(__dirname, '../../../static/templates/verification-email.html'),
+      { baseUrl, token },
+    );
+
+    await this.sendEmail(
+      email,
+      '[Metacognition] Email address verification request',
       htmlContent,
     );
   }

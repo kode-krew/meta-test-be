@@ -23,6 +23,7 @@ import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { GoogleAuthGuard } from 'src/auth/guard/google.auth.guard';
 import { CreateUserInfoResponseDto } from '../user/dto/create-user-info-response.dto';
 import { ResetPasswordRequestDto } from './dto/reset-password-request.dto';
+import { EmailVerificationRequestDto } from './dto/email-verification-request.dto';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -145,5 +146,21 @@ export class AuthController {
   async updateUserPassword(@Body() body: ResetPasswordRequestDto) {
     const email = body.email;
     return await this.authService.resetUserPassword(email);
+  }
+
+  @Post('email-verification')
+  @ApiOperation({
+    summary: '이메일 인증 요청',
+    description: '이메일 인증 요청 메일을 발송',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Created',
+  })
+  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @HttpCode(HttpStatus.CREATED)
+  async sendCode(@Body() body: EmailVerificationRequestDto) {
+    const email = body.email;
+    return await this.authService.sendCode(email);
   }
 }

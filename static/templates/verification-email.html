@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <style>
+       body {
+           font-family: Arial, sans-serif;
+           margin: 0;
+           padding: 20px;
+           background-color: #f4f4f4;
+           color: #333;
+       }
+       .container {
+           max-width: 600px;
+           margin: 20px auto;
+           padding: 20px;
+           background-color: #fff;
+           border-radius: 10px;
+           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+       }
+       h2 {
+           color: #444;
+       }
+       .password-reset {
+           background-color: #e8f0fe;
+           padding: 10px;
+           margin: 20px 0;
+           border-left: 4px solid #2196F3;
+           font-weight: bold;
+       }
+       .footer {
+           text-align: center;
+           margin-top: 20px;
+           font-size: 0.9em;
+           color: #aaa;
+       }
+       .spacing {
+           margin-top: 20px;
+       }
+   </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Email Verification Required</h2>
+        <p>You are receiving this email because you have started the registration process with our service.</p>
+        <p>To continue with your registration, please verify your email address by clicking on the link below:</p>
+        <p><a href="{{baseUrl}}/auth/email-verification?token={{token}}" target="_blank" style="color: blue;">Verify Email Address</a></p><br>
+        <p>After verifying your email, please return to the registration page to continue with your sign-up process.</p>
+        <div class="footer">
+            <p>Thank you for using our service!</p>
+        </div>
+    </div>  
+</body>
+</html>
