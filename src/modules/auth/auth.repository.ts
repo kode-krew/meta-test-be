@@ -26,7 +26,7 @@ export class AuthRepository {
     return result.Items ? result.Items[0] : null;
   }
 
-  async createAuthentication(email: string): Promise<any> {
+  async createEmailAuthentication(email: string): Promise<any> {
     const id = uuidv4();
     const now = new Date();
     const createdAt = now.toISOString();

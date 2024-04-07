@@ -159,8 +159,8 @@ export class AuthController {
   })
   // @ApiResponse({ status: 400, description: 'Bad request'})
   @HttpCode(HttpStatus.CREATED)
-  async sendCode(@Body() body: EmailVerificationRequestDto) {
+  async createEmailVerificaiton(@Body() body: EmailVerificationRequestDto) {
     const email = body.email;
-    return await this.authService.sendCode(email);
+    return await this.authService.createEmailVerificaiton(email);
   }
 }

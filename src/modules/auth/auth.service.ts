@@ -158,15 +158,15 @@ export class AuthService {
     );
   }
 
-  async sendCode(email: string): Promise<void> {
-    const user = await this.userRepository.findOneByEmail(email);
-    if (user) {
-      throw new BadRequestException('Invalid email');
-    }
+  async createEmailVerificaiton(email: string): Promise<void> {
+    // const user = await this.userRepository.findOneByEmail(email);
+    // if (user) {
+    //   throw new BadRequestException('Invalid email');
+    // }
 
-    const item = await this.authRepository.createAuthentication(email);
+    const item = await this.authRepository.createEmailAuthentication(email);
     const token = item.PK;
-    const baseUrl = process.env.BASE_URL;
+    const baseUrl = process.env.EMAIL_VERIFICATION_BASE_URL;
 
     // 사용자에게 이메일 전송
     const htmlContent = readHtmlFile(
