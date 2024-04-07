@@ -32,7 +32,7 @@ export class UserService {
     const user = await this.usersRepository.findOneByEmail(userInfo.email);
 
     if (user) {
-      throw new NotFoundException('User exist');
+      throw new BadRequestException('User exist');
     }
 
     const item = await this.usersRepository.create(userInfo);
