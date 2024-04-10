@@ -31,7 +31,6 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.use(cookieParser());
-
   // set port
   const port =
     process.env.NODE_ENV === 'dev'
