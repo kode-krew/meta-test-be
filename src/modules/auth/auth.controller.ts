@@ -1,24 +1,23 @@
 import {
-  Controller,
-  Post,
-  Get,
-  Patch,
   Body,
-  Param,
+  Controller,
+  Get,
   HttpCode,
   HttpStatus,
-  Res,
+  Patch,
+  Post,
   Req,
-  UseGuards,
+  Res,
+  UseGuards
 } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiOperation, ApiHeader } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { KakaoAuthGuard } from 'src/auth/guard/kakao.auth.guard';
+import { AuthService } from './auth.service';
 import { CreateTokenRequestDto } from './dto/create-token-request.dto';
 import { CreateTokenResponseDto } from './dto/create-token-response.dto';
 import { RefreshTokenRequestDto } from './dto/refresh-token-request.dto';
 import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
-import { AuthService } from './auth.service';
-import { Response } from 'express';
-import { KakaoAuthGuard } from 'src/auth/guard/kakao.auth.guard';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { GoogleAuthGuard } from 'src/auth/guard/google.auth.guard';
 import { CreateUserInfoResponseDto } from '../user/dto/create-user-info-response.dto';
@@ -44,18 +43,9 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const tokens = await this.authService.create(createTokenInfoDto);
-
-    res.cookie('access_token', tokens.access_token, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 15 * 60 * 1000), // 1h
-    });
-
-    res.cookie('refresh_token', tokens.refresh_token, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30d
-    });
-    res.setHeader('access_token', tokens.access_token);
-    res.setHeader('refresh_token', tokens.refresh_token);
+    res.setHeader('Access-Control-Expose-Headers', 'Access_Token, Refresh_Token');
+    res.setHeader('Access_token', tokens.access_token);
+    res.setHeader('Refresh_token', tokens.refresh_token);
 
     res.status(HttpStatus.CREATED).send();
   }
@@ -78,16 +68,7 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const tokens = await this.authService.refreshToken(refreshTokenInfoDto);
-
-    res.cookie('access_token', tokens.access_token, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 15 * 60 * 1000), // 1h
-    });
-
-    res.cookie('refresh_token', tokens.refresh_token, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30d
-    });
+    res.setHeader('Access-Control-Expose-Headers', 'Access_Token, Refresh_Token');
     res.setHeader('access_token', tokens.access_token);
     res.setHeader('refresh_token', tokens.refresh_token);
 
