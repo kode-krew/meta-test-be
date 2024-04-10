@@ -9,7 +9,6 @@ import { CreateTokenResponseDto } from './dto/create-token-response.dto';
 import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { UserService } from '../user/user.service';
-import { CreateUserInfoResponseDto } from '../user/dto/create-user-info-response.dto';
 import { UserRepository } from '../user/user.repository';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { generatePassword } from 'src/core/utils/password.util';
@@ -87,7 +86,7 @@ export class AuthService {
 
   async OAuthLogin(
     socialLoginDto: SocialLoginRequestDto,
-  ): Promise<CreateTokenResponseDto | CreateUserInfoResponseDto> {
+  ): Promise<CreateTokenResponseDto> {
     const { email, password } = socialLoginDto;
 
     const user = await this.validateUser(email, password);
@@ -96,8 +95,9 @@ export class AuthService {
       //1.기존 가입 유저라면, token create
       return await this.create({ email, password });
     }
-    //2. 신규 유저라면 회원가입
-    return await this.userService.create({ email, password });
+    //2. 신규 유저라면 회원가입 후 token create
+    await this.userService.create({ email, password });
+    return await this.create({ email, password });
   }
 
   async sendEmail(

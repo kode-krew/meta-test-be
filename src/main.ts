@@ -38,6 +38,9 @@ async function bootstrap() {
       : process.env.NODE_ENV === 'production'
         ? 8080
         : 3000;
+
+  console.log('server start at', port);
+
   await app.listen(port);
 }
 bootstrap();
