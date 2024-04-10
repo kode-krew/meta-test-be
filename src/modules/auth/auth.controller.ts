@@ -8,7 +8,7 @@ import {
   Post,
   Req,
   Res,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -42,7 +42,10 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const tokens = await this.authService.create(createTokenInfoDto);
-    res.setHeader('Access-Control-Expose-Headers', 'Access_Token, Refresh_Token');
+    res.setHeader(
+      'Access-Control-Expose-Headers',
+      'Access_Token, Refresh_Token',
+    );
     res.setHeader('Access_token', tokens.access_token);
     res.setHeader('Refresh_token', tokens.refresh_token);
 
@@ -67,7 +70,10 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const tokens = await this.authService.refreshToken(refreshTokenInfoDto);
-    res.setHeader('Access-Control-Expose-Headers', 'Access_Token, Refresh_Token');
+    res.setHeader(
+      'Access-Control-Expose-Headers',
+      'Access_Token, Refresh_Token',
+    );
     res.setHeader('access_token', tokens.access_token);
     res.setHeader('refresh_token', tokens.refresh_token);
 
@@ -89,12 +95,15 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const user = req['user'] as SocialLoginRequestDto;
-    const tokens = await this.authService.create(user);
-    res.setHeader('Access-Control-Expose-Headers', 'Access_Token, Refresh_Token');
+    const tokens = await this.authService.OAuthLogin(user);
+    res.setHeader(
+      'Access-Control-Expose-Headers',
+      'Access_Token, Refresh_Token',
+    );
     res.setHeader('Access_token', tokens.access_token);
     res.setHeader('Refresh_token', tokens.refresh_token);
     res.status(HttpStatus.CREATED).send();
-    }
+  }
 
   @ApiOperation({
     summary: '구글 소셜로그인',
@@ -109,10 +118,13 @@ export class AuthController {
   async loginWithGoogle(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ){
+  ) {
     const user = req['user'] as SocialLoginRequestDto;
-    const tokens = await this.authService.create(user);
-    res.setHeader('Access-Control-Expose-Headers', 'Access_Token, Refresh_Token');
+    const tokens = await this.authService.OAuthLogin(user);
+    res.setHeader(
+      'Access-Control-Expose-Headers',
+      'Access_Token, Refresh_Token',
+    );
     res.setHeader('Access_token', tokens.access_token);
     res.setHeader('Refresh_token', tokens.refresh_token);
     res.status(HttpStatus.CREATED).send();
