@@ -20,7 +20,6 @@ import { RefreshTokenRequestDto } from './dto/refresh-token-request.dto';
 import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { GoogleAuthGuard } from 'src/auth/guard/google.auth.guard';
-import { CreateUserInfoResponseDto } from '../user/dto/create-user-info-response.dto';
 import { ResetPasswordRequestDto } from './dto/reset-password-request.dto';
 import { EmailVerificationRequestDto } from './dto/email-verification-request.dto';
 
@@ -88,11 +87,14 @@ export class AuthController {
   async loginWithKakao(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<CreateTokenResponseDto | CreateUserInfoResponseDto> {
+  ) {
     const user = req['user'] as SocialLoginRequestDto;
-
-    return await this.authService.OAuthLogin(user);
-  }
+    const tokens = await this.authService.create(user);
+    res.setHeader('Access-Control-Expose-Headers', 'Access_Token, Refresh_Token');
+    res.setHeader('Access_token', tokens.access_token);
+    res.setHeader('Refresh_token', tokens.refresh_token);
+    res.status(HttpStatus.CREATED).send();
+    }
 
   @ApiOperation({
     summary: '구글 소셜로그인',
@@ -107,10 +109,13 @@ export class AuthController {
   async loginWithGoogle(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<CreateTokenResponseDto | CreateUserInfoResponseDto> {
+  ){
     const user = req['user'] as SocialLoginRequestDto;
-
-    return await this.authService.OAuthLogin(user);
+    const tokens = await this.authService.create(user);
+    res.setHeader('Access-Control-Expose-Headers', 'Access_Token, Refresh_Token');
+    res.setHeader('Access_token', tokens.access_token);
+    res.setHeader('Refresh_token', tokens.refresh_token);
+    res.status(HttpStatus.CREATED).send();
   }
 
   @Patch('password')
