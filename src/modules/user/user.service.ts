@@ -68,6 +68,8 @@ export class UserService {
 
   async getUserTest(id: string, query: GetUserTestQueryDto): Promise<any> {
     const limit = query.limit;
+    const order = query.order;
+    const level = query.level;
     const encodedStartKey = query.startkey;
     let startKey: any;
     if (encodedStartKey) {
@@ -80,6 +82,8 @@ export class UserService {
     const userTest = await this.usersRepository.findUserTest(
       id,
       limit,
+      order,
+      level,
       startKey,
     );
     return userTest;

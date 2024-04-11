@@ -26,6 +26,7 @@ import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
 import { UpdateUserInfoResponseDto } from './dto/update-user-info-response.dto';
 import { GetUserTestQueryDto } from './dto/get-user-test-query.dto';
 import { GetUserTestResponseDto } from './dto/get-user-test-response.dto';
+import { TestLevel, Order } from '../test/test.entity';
 
 @ApiTags('users')
 @Controller({ path: 'users' })
@@ -86,6 +87,9 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async geteUserTest(@Request() req: any, @Query() query: GetUserTestQueryDto) {
     const id = req.user.id;
+    // set query params
+    query.order = query.order || Order.Desc;
+    query.level = query.level || TestLevel.All;
     return await this.userService.getUserTest(id, query);
   }
 }

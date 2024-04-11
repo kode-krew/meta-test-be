@@ -20,9 +20,10 @@ export class TestRepository {
     const testResult = calculateScoreAndCorrectWords(data);
     const createdAt = new Date().toISOString();
     const category = 'test';
+    const level = data.level;
     const item = {
       PK: id,
-      SK: `Test#${createdAt}`,
+      SK: `Test#${level}#${createdAt}`,
       ...data,
       ...testResult,
       category,

@@ -11,7 +11,6 @@ export class UserRepository {
   }
 
   async findOneById(id: string): Promise<any> {
-    console.log('id:', id);
     const result = await this.dynamoDb.get({
       TableName: this.tableName,
       Key: {
@@ -86,7 +85,16 @@ export class UserRepository {
     return result.Attributes;
   }
 
-  async findUserTest(id: string, limit: number, startKey?: any): Promise<any> {
+  async findUserTest(
+    id: string,
+    limit: number,
+    order: string,
+    level: string,
+    startKey?: any,
+  ): Promise<any> {
+    const sortKeyPrefix = level === 'all' ? 'Test#' : `Test#${level}#`;
+    const scanIndexForward = order === 'asc';
+
     const params = {
       TableName: this.tableName,
       KeyConditionExpression: '#pk = :id and begins_with(#sk, :sortKeyPrefix)',
@@ -96,11 +104,11 @@ export class UserRepository {
       },
       ExpressionAttributeValues: {
         ':id': id,
-        ':sortKeyPrefix': 'Test#',
+        ':sortKeyPrefix': sortKeyPrefix,
       },
       Limit: limit, // pagination limit
       ExclusiveStartKey: startKey, // previous last key
-      ScanIndexForward: false, // order = desc
+      ScanIndexForward: scanIndexForward,
     };
 
     try {

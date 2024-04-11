@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { TestLevel } from '../../test/test.entity';
 
 export class Item {
   @ApiProperty({
@@ -22,8 +23,8 @@ export class Item {
   })
   input_words: string[];
 
-  @ApiProperty({ example: 'advanced', description: 'The level' })
-  level: string;
+  @ApiProperty({ enum: TestLevel, description: 'The level' })
+  level: TestLevel;
 
   @ApiProperty({ example: 1, description: 'The expected count' })
   expected_count: number;

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { TestLevel } from '../test.entity';
 
 export class CreateTestResponseDto {
   @ApiProperty({
@@ -7,8 +8,11 @@ export class CreateTestResponseDto {
   })
   id: string;
 
-  @ApiProperty({ example: 'beginner', description: 'level' })
-  level: string;
+  @ApiProperty({
+    enum: TestLevel,
+    description: 'level',
+  })
+  level: TestLevel;
 
   @ApiProperty({ example: 0.5, description: 'score' })
   score: number;

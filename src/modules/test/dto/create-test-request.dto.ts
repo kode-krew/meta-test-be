@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { TestLevel } from '../test.entity';
 
 export class CreateTestRequestDto {
   @IsOptional()
@@ -20,9 +21,12 @@ export class CreateTestRequestDto {
   id?: string;
 
   @IsString()
-  @IsIn(['beginner', 'intermediate', 'advanced'])
-  @ApiProperty({ example: 'beginner', description: 'level' })
-  level: string;
+  @IsIn(Object.values(TestLevel))
+  @ApiProperty({
+    enum: TestLevel,
+    description: 'level',
+  })
+  level: TestLevel;
 
   @IsInt()
   @Type(() => Number)
