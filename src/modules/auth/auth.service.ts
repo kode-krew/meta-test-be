@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UnauthorizedException } from '@nestjs/common';
 import { CreateTokenRequestDto } from './dto/create-token-request.dto';
 import { RefreshTokenRequestDto } from './dto/refresh-token-request.dto';
 import { AuthRepository } from './auth.repository';
@@ -10,7 +9,11 @@ import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  NotFoundException,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { generatePassword } from 'src/core/utils/password.util';
 import { sesClient } from 'src/core/config/aws.config';
 import { SendEmailCommand } from '@aws-sdk/client-ses';
@@ -179,5 +182,22 @@ export class AuthService {
       '[Metacognition] Email address verification request',
       htmlContent,
     );
+  }
+
+  async updateEmailVerificaiton(token: string): Promise<void> {
+    const item =
+      await this.authRepository.findOneByEmailVerificaitonToken(token);
+    if (!item) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const now = new Date();
+    const expirationDate = new Date(item.expireAt);
+
+    if (item.is_verified || expirationDate < now) {
+      throw new UnauthorizedException('Expired token');
+    }
+
+    return await this.authRepository.updateEmailVerificaitonToken(token);
   }
 }

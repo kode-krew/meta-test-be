@@ -22,6 +22,7 @@ import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { GoogleAuthGuard } from 'src/auth/guard/google.auth.guard';
 import { ResetPasswordRequestDto } from './dto/reset-password-request.dto';
 import { EmailVerificationRequestDto } from './dto/email-verification-request.dto';
+import { UpdateEmailVerificationRequestDto } from './dto/update-email-verification-request.dto';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -160,5 +161,25 @@ export class AuthController {
   async createEmailVerificaiton(@Body() body: EmailVerificationRequestDto) {
     const email = body.email;
     return await this.authService.createEmailVerificaiton(email);
+  }
+
+  @Patch('email-verification')
+  @ApiOperation({
+    summary: '이메일 인증 검증',
+    description: '임시토큰으로 이메일 인증을 검증',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'OK',
+  })
+  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @HttpCode(HttpStatus.OK)
+  async updateEmailVerificaiton(
+    @Body() body: UpdateEmailVerificationRequestDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = body.token;
+    await this.authService.updateEmailVerificaiton(token);
+    res.status(HttpStatus.OK).send();
   }
 }

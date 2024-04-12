@@ -50,4 +50,30 @@ export class AuthRepository {
 
     return item;
   }
+
+  async findOneByEmailVerificaitonToken(token: string): Promise<any> {
+    const result = await this.dynamoDb.get({
+      TableName: this.emailVerificationTableName,
+      Key: {
+        PK: token,
+      },
+    });
+    const { Item, ...$metadata } = result;
+    return Item;
+  }
+
+  async updateEmailVerificaitonToken(token: string): Promise<any> {
+    const result = await this.dynamoDb.update({
+      TableName: this.emailVerificationTableName,
+      Key: {
+        PK: token,
+      },
+      UpdateExpression: 'set is_verified = :v',
+      ExpressionAttributeValues: {
+        ':v': true,
+      },
+    });
+
+    return true;
+  }
 }
