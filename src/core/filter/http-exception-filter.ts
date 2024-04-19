@@ -16,17 +16,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const exceptionResponse = exception.getResponse();
 
     if (exception instanceof UnauthorizedException) {
-      if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
+      if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse !== null &&
+        exceptionResponse['message'] === 'Unauthorized'
+      ) {
         response.status(status).json({
-          statusCode: status,
-          ...exceptionResponse,
+          message: 'Invalid token',
           error: 'Unauthorized',
         });
       } else {
-        // exceptionResponse가 객체가 아닌 경우 (예: 문자열)
         response.status(status).json({
-          statusCode: status,
-          message: exceptionResponse,
+          message: exceptionResponse['message'],
           error: 'Unauthorized',
         });
       }

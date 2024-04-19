@@ -9,16 +9,13 @@ import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
-import {
-  NotFoundException,
-  BadRequestException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { generatePassword } from 'src/core/utils/password.util';
 import { sesClient } from 'src/core/config/aws.config';
 import { SendEmailCommand } from '@aws-sdk/client-ses';
 import { readHtmlFile } from 'src/core/utils/read-html-file.util';
 import { join } from 'path';
+import { jwtConstants } from 'src/core/config/jwt';
 
 @Injectable()
 export class AuthService {
@@ -55,7 +52,7 @@ export class AuthService {
       access_token: this.jwtService.sign({ ...payload, isRefreshToken: false }),
       refresh_token: this.jwtService.sign(
         { ...payload, isRefreshToken: true },
-        { expiresIn: '30d' },
+        { expiresIn: jwtConstants.refreshTokenExpiresIn },
       ),
     };
   }

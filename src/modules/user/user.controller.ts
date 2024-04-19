@@ -27,7 +27,7 @@ import { UpdateUserInfoResponseDto } from './dto/update-user-info-response.dto';
 import { GetUserTestQueryDto } from './dto/get-user-test-query.dto';
 import { GetUserTestResponseDto } from './dto/get-user-test-response.dto';
 import { TestLevel, Order } from '../test/test.entity';
-
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 @ApiTags('users')
 @Controller({ path: 'users' })
 export class UserController {
@@ -41,6 +41,7 @@ export class UserController {
   // @ApiResponse({ status: 403, description: 'Forbidden.'})
   @HttpCode(HttpStatus.OK)
   async getUser(@Request() req) {
+    throw new NotFoundException('232323');
     const id = req.user.id;
 
     return await this.userService.getUserById(id);

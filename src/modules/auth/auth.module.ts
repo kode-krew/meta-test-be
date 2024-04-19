@@ -11,7 +11,7 @@ import { KakaoStrategy } from 'src/auth/strategy/kakao.strategy';
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
 import { GoogleStrategy } from 'src/auth/strategy/google.strategy';
-import { forwardRef } from '@nestjs/common';
+import { jwtConstants } from 'src/core/config/jwt';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { forwardRef } from '@nestjs/common';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: jwtConstants.accessTokenExpiresIn },
     }),
     UserModule,
   ],
