@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { TestLevel } from '../../test.entity';
+import { TestLevel } from '../test.entity';
 
 export class CreateTestRequestDto {
   @IsOptional()

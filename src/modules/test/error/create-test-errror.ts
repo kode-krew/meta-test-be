@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateTestRequestBodyBadRequestErrorDto {
+export class CreateTestRequestBodyBadRequestError {
   @ApiProperty({
     example: [
       'level must be one of the following values: beginner, intermediate, advanced, all',

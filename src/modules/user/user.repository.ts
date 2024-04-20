@@ -102,7 +102,7 @@ export class UserRepository {
     }
   }
 
-  async findUserTest(
+  async findUserTestList(
     id: string,
     limit: number,
     order: string,
@@ -130,8 +130,17 @@ export class UserRepository {
 
     try {
       const result = await this.dynamoDb.query(params);
+
+      const transformedItems = result.Items.map((item) => {
+        const { PK, SK, ...rest } = item;
+        return {
+          ...rest,
+          sort_key: SK, // 'SK' 키를 'sort_key'로 변경
+        };
+      });
+
       return {
-        items: result.Items,
+        items: transformedItems,
         count: result.Count,
         lastEvaluatedKey: result.LastEvaluatedKey
           ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
@@ -140,6 +149,22 @@ export class UserRepository {
           : null,
       };
     } catch (error) {
+      throw new DatabaseError();
+    }
+  }
+
+  async findUserTest(id: string, sort_key: string): Promise<any> {
+    try {
+      const result = await this.dynamoDb.get({
+        TableName: this.tableName,
+        Key: {
+          PK: id,
+          SK: sort_key,
+        },
+      });
+      const { Item, ...$metadata } = result;
+      return Item;
+    } catch (e) {
       throw new DatabaseError();
     }
   }

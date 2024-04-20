@@ -19,16 +19,19 @@ import {
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateUserInfoRequestDto } from './dto/http/create-user-info-request.dto';
-import { CreateUserInfoResponseDto } from './dto/http/create-user-info-response.dto';
-import { GetUserInfoResponseDto } from './dto/http/get-user-info-response.dto';
-import { UpdateUserInfoRequestDto } from './dto/http/update-user-info-request.dto';
-import { UpdateUserInfoResponseDto } from './dto/http/update-user-info-response.dto';
-import { GetUserTestQueryDto } from './dto/http/get-user-test-query.dto';
-import { GetUserTestListResponseDto } from './dto/http/get-user-test-list-response.dto';
+import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
+import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
+import { GetUserInfoResponseDto } from './dto/get-user-info-response.dto';
+import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
+import { UpdateUserInfoResponseDto } from './dto/update-user-info-response.dto';
+import { GetUserTestListQueryDto } from './dto/get-user-test-list-query.dto';
+import { GetUserTestListResponseDto } from './dto/get-user-test-list-response.dto';
 import { TestLevel, Order } from '../test/test.entity';
-import { UnauthorizedErrorDto } from 'src/core/dto/unauthorized-error.dto';
-import { GetUserInfoNotFoundErrorDto } from './dto/error/get-user-info-error.dto';
+import { UnauthorizedError } from 'src/core/errors/unauthorized-error';
+import { GetUserInfoNotFoundError } from './error/get-user-info-error';
+import { GetUserTestQueryDto } from './dto/get-user-test-query.dto';
+import { GetUserTestNotFoundError } from './error/get-user-test-error';
+import { GetUserTestResponseDto } from './dto/get-user-test-response.dto';
 
 @ApiTags('users')
 @Controller({ path: 'users' })
@@ -43,12 +46,12 @@ export class UserController {
   @ApiResponse({
     status: 404,
     description: 'Not Found',
-    type: GetUserInfoNotFoundErrorDto,
+    type: GetUserInfoNotFoundError,
   })
   @ApiResponse({
     status: 401,
     description: 'Unauthorized',
-    type: UnauthorizedErrorDto,
+    type: UnauthorizedError,
   })
   @ApiResponse({
     status: 500,
@@ -143,7 +146,7 @@ export class UserController {
   @ApiResponse({
     status: 401,
     description: 'Unauthorized',
-    type: UnauthorizedErrorDto,
+    type: UnauthorizedError,
   })
   @ApiResponse({
     status: 500,
@@ -152,12 +155,42 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async geteUserTestList(
     @Request() req: any,
-    @Query() query: GetUserTestQueryDto,
+    @Query() query: GetUserTestListQueryDto,
   ) {
     const id = req.user.id;
     // set query params
     query.order = query.order || Order.Desc;
     query.level = query.level || TestLevel.All;
-    return await this.userService.getUserTest(id, query);
+    return await this.userService.getUserTestList(id, query);
+  }
+
+  @Get('/test/:id')
+  @ApiOperation({ summary: '유저 테스트 정보 조회', description: '' })
+  @ApiResponse({
+    status: 200,
+    description: 'OK',
+    type: GetUserTestResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    type: UnauthorizedError,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
+    type: GetUserTestNotFoundError,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
+  @HttpCode(HttpStatus.OK)
+  async geteUserTest(
+    @Param('id') id: string,
+    @Query() query: GetUserTestQueryDto,
+  ) {
+    const { sort_key } = query;
+    return await this.userService.getUserTest(id, sort_key);
   }
 }

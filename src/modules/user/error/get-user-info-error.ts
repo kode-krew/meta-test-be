@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class GetUserInfoNotFoundErrorDto {
+export class GetUserInfoNotFoundError {
   @ApiProperty({
-    example: ['User does not exists'],
+    example: 'User does not exist',
   })
-  message: string[];
+  message: string;
 
   @ApiProperty({
     example: 'Not Found',

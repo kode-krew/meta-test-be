@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TestLevel } from '../../../test/test.entity';
+import { TestLevel } from '../../test/test.entity';
 
 export class Item {
   @ApiProperty({
@@ -51,7 +51,7 @@ export class Item {
     example: 'Test#2024-03-30T01:44:00.232Z',
     description: 'The SortKey',
   })
-  SortKey: string;
+  sort_key: string;
 }
 
 export class GetUserTestListResponseDto {

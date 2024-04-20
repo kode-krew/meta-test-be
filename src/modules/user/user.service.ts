@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
-import { CreateUserInfoRequestDto } from './dto/http/create-user-info-request.dto';
-import { UpdateUserInfoRequestDto } from './dto/http/update-user-info-request.dto';
-import { GetUserTestQueryDto } from './dto/http/get-user-test-query.dto';
-import { CreateUserInfoResponseDto } from './dto/http/create-user-info-response.dto';
+import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
+import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
+import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
 
 @Injectable()
 export class UserService {
@@ -13,7 +12,7 @@ export class UserService {
   async getUserById(id: string): Promise<any> {
     const user = await this.usersRepository.findOneById(id);
     if (!user) {
-      throw new NotFoundException('User does not exists');
+      throw new NotFoundException('User does not exist');
     }
 
     const responseItem = {
@@ -66,7 +65,7 @@ export class UserService {
     return responseItem;
   }
 
-  async getUserTest(id: string, query: GetUserTestQueryDto): Promise<any> {
+  async getUserTestList(id: string, query: any): Promise<any> {
     const limit = query.limit;
     const order = query.order;
     const level = query.level;
@@ -79,13 +78,30 @@ export class UserService {
       startKey = JSON.parse(decodedString);
     }
 
-    const userTest = await this.usersRepository.findUserTest(
+    const userTestList = await this.usersRepository.findUserTestList(
       id,
       limit,
       order,
       level,
       startKey,
     );
-    return userTest;
+    console.log('userTestList:', userTestList);
+    return userTestList;
+  }
+
+  async getUserTest(id: string, sort_key: string): Promise<any> {
+    const userTest = await this.usersRepository.findUserTest(id, sort_key);
+    if (!userTest) {
+      throw new NotFoundException('User test does not exist');
+    }
+
+    const responseItem = {
+      id: userTest.PK,
+      sort_key: userTest.SK,
+      ...userTest,
+    };
+    delete responseItem.PK;
+    delete responseItem.SK;
+    return responseItem;
   }
 }
