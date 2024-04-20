@@ -67,6 +67,7 @@ export class UserRepository {
 
       return item;
     } catch (e) {
+      console.error('create error', e, item);
       throw new DatabaseError();
     }
   }
