@@ -11,6 +11,7 @@ export class TestService {
 
     const responseItem = {
       id: item.PK,
+      sort_key: item.SK,
     };
 
     return responseItem;
