@@ -36,7 +36,7 @@ export class UserService {
   ): Promise<CreateUserInfoResponseDto> {
     const user = await this.usersRepository.findOneByEmail(userInfo.email);
 
-    const isSameUserType = userType === (user.userType ?? UserType.NORMAL);
+    const isSameUserType = userType === (user?.userType ?? UserType.NORMAL);
 
     if (user && isSameUserType) {
       throw new ConflictException('User exists');
