@@ -140,7 +140,15 @@ export class UserController {
     description: 'OK',
     type: GetUserTestListResponseDto,
   })
-  // @ApiResponse({ status: 403, description: 'Forbidden.'})
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    type: UnauthorizedErrorDto,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.OK)
   async geteUserTestList(
     @Request() req: any,

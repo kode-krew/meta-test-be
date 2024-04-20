@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Injectable, Inject } from '@nestjs/common';
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 import * as bcrypt from 'bcrypt';
+import { DatabaseError } from 'src/core/errors/database-error';
 
 @Injectable()
 export class UserRepository {
@@ -11,27 +12,35 @@ export class UserRepository {
   }
 
   async findOneById(id: string): Promise<any> {
-    const result = await this.dynamoDb.get({
-      TableName: this.tableName,
-      Key: {
-        PK: id,
-        SK: `UserInfo#${id}`,
-      },
-    });
-    const { Item, ...$metadata } = result;
-    return Item;
+    try {
+      const result = await this.dynamoDb.get({
+        TableName: this.tableName,
+        Key: {
+          PK: id,
+          SK: `UserInfo#${id}`,
+        },
+      });
+      const { Item, ...$metadata } = result;
+      return Item;
+    } catch (e) {
+      throw new DatabaseError();
+    }
   }
 
   async findOneByEmail(email: string): Promise<any> {
-    const result = await this.dynamoDb.query({
-      TableName: this.tableName,
-      IndexName: 'email-index',
-      KeyConditionExpression: 'email = :email',
-      ExpressionAttributeValues: {
-        ':email': email,
-      },
-    });
-    return result.Items ? result.Items[0] : null;
+    try {
+      const result = await this.dynamoDb.query({
+        TableName: this.tableName,
+        IndexName: 'email-index',
+        KeyConditionExpression: 'email = :email',
+        ExpressionAttributeValues: {
+          ':email': email,
+        },
+      });
+      return result.Items ? result.Items[0] : null;
+    } catch (e) {
+      throw new DatabaseError();
+    }
   }
 
   async create(userInfo: any): Promise<any> {
@@ -50,12 +59,16 @@ export class UserRepository {
       createdAt,
     };
 
-    await this.dynamoDb.put({
-      TableName: this.tableName,
-      Item: item,
-    });
+    try {
+      await this.dynamoDb.put({
+        TableName: this.tableName,
+        Item: item,
+      });
 
-    return item;
+      return item;
+    } catch (e) {
+      throw new DatabaseError();
+    }
   }
 
   async update(id: string, userInfo: any): Promise<any> {
@@ -70,19 +83,23 @@ export class UserRepository {
     }
     updateExpression = updateExpression.slice(0, -1); // Remove the trailing comma
 
-    const result = await this.dynamoDb.update({
-      TableName: this.tableName,
-      Key: {
-        PK: id,
-        SK: `UserInfo#${id}`,
-      },
-      UpdateExpression: updateExpression,
-      ExpressionAttributeNames: ExpressionAttributeNames,
-      ExpressionAttributeValues: ExpressionAttributeValues,
-      ReturnValues: 'ALL_NEW', // return updated all data
-    });
+    try {
+      const result = await this.dynamoDb.update({
+        TableName: this.tableName,
+        Key: {
+          PK: id,
+          SK: `UserInfo#${id}`,
+        },
+        UpdateExpression: updateExpression,
+        ExpressionAttributeNames: ExpressionAttributeNames,
+        ExpressionAttributeValues: ExpressionAttributeValues,
+        ReturnValues: 'ALL_NEW', // return updated all data
+      });
 
-    return result.Attributes;
+      return result.Attributes;
+    } catch (e) {
+      throw new DatabaseError();
+    }
   }
 
   async findUserTest(
@@ -123,8 +140,7 @@ export class UserRepository {
           : null,
       };
     } catch (error) {
-      console.error('Server error', error);
-      throw error;
+      throw new DatabaseError();
     }
   }
 }
