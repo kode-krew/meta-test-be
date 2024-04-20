@@ -23,6 +23,7 @@ import { GoogleAuthGuard } from 'src/auth/guard/google.auth.guard';
 import { ResetPasswordRequestDto } from './dto/reset-password-request.dto';
 import { EmailVerificationRequestDto } from './dto/email-verification-request.dto';
 import { UpdateEmailVerificationRequestDto } from './dto/update-email-verification-request.dto';
+import { UserType } from 'src/types/userType';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -42,7 +43,11 @@ export class AuthController {
     @Body() createTokenInfoDto: CreateTokenRequestDto,
     @Res() res: Response,
   ) {
-    const tokens = await this.authService.create(createTokenInfoDto);
+    //NOTE: 이 API가 호출되는 유저는 일반 유저이므로 userType = NORMAL
+    const tokens = await this.authService.create(
+      createTokenInfoDto,
+      UserType.NORMAL,
+    );
     res.setHeader(
       'Access-Control-Expose-Headers',
       'Access_Token, Refresh_Token',
@@ -96,7 +101,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const user = req['user'] as SocialLoginRequestDto;
-    const tokens = await this.authService.OAuthLogin(user);
+    const tokens = await this.authService.OAuthLogin(user, UserType.KAKAO);
     res.setHeader(
       'Access-Control-Expose-Headers',
       'Access_Token, Refresh_Token',
@@ -121,7 +126,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const user = req['user'] as SocialLoginRequestDto;
-    const tokens = await this.authService.OAuthLogin(user);
+    const tokens = await this.authService.OAuthLogin(user, UserType.GOOGLE);
     res.setHeader(
       'Access-Control-Expose-Headers',
       'Access_Token, Refresh_Token',

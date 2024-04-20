@@ -8,6 +8,7 @@ import { UserRepository } from './user.repository';
 import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
 import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
+import { UserType } from 'src/types/userType';
 
 @Injectable()
 export class UserService {
@@ -31,14 +32,17 @@ export class UserService {
 
   async create(
     userInfo: CreateUserInfoRequestDto,
+    userType: UserType,
   ): Promise<CreateUserInfoResponseDto> {
     const user = await this.usersRepository.findOneByEmail(userInfo.email);
 
-    if (user) {
+    const isSameUserType = userType === (user?.userType ?? UserType.NORMAL);
+
+    if (user && isSameUserType) {
       throw new ConflictException('User exists');
     }
 
-    const item = await this.usersRepository.create(userInfo);
+    const item = await this.usersRepository.create({ ...userInfo, userType });
 
     const responseItem = {
       id: item.PK,

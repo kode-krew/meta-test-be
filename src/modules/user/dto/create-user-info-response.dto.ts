@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum } from 'class-validator';
+import { UserType } from 'src/types/userType';
 
 // password 필드는 포함하지 않습니다.
 export class CreateUserInfoResponseDto {
@@ -34,4 +36,12 @@ export class CreateUserInfoResponseDto {
     description: 'The age of the user',
   })
   age?: number;
+
+  @IsEnum(UserType)
+  @ApiProperty({
+    required: true,
+    example: UserType.NORMAL,
+    description: '유저 가입 유형(타입)',
+  })
+  userType: UserType;
 }
