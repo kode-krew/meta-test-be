@@ -11,10 +11,8 @@ export class TestService {
 
     const responseItem = {
       id: item.PK,
-      ...item,
     };
-    delete responseItem.PK;
-    delete responseItem.SK;
+
     return responseItem;
   }
 }
