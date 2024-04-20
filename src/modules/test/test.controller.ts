@@ -3,7 +3,7 @@ import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { TestService } from './test.service';
 import { CreateTestRequestDto } from './dto/http/create-test-request.dto';
 import { CreateTestResponseDto } from './dto/http/create-test-response.dto';
-import { CreateTestErrorRequestBodyBadRequestErrorDto } from './dto/error/create-test-errror.dto';
+import { CreateTestRequestBodyBadRequestErrorDto } from './dto/error/create-test-errror.dto';
 
 @ApiTags('test')
 @Controller({ path: 'test' })
@@ -20,7 +20,7 @@ export class TestController {
   @ApiResponse({
     status: 400,
     description: 'Bad request',
-    type: CreateTestErrorRequestBodyBadRequestErrorDto,
+    type: CreateTestRequestBodyBadRequestErrorDto,
   })
   @ApiResponse({
     status: 500,
