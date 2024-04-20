@@ -16,6 +16,7 @@ import { SendEmailCommand } from '@aws-sdk/client-ses';
 import { readHtmlFile } from 'src/core/utils/read-html-file.util';
 import { join } from 'path';
 import { jwtConstants } from 'src/core/config/jwt';
+import { UserType } from 'src/types/userType';
 
 @Injectable()
 export class AuthService {
@@ -26,19 +27,36 @@ export class AuthService {
     private userRepository: UserRepository,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(
+    email: string,
+    password: string,
+    userType: UserType,
+  ): Promise<any> {
+    //NOTE: email & userType까지 동일해야 동일 유저
     const user = await this.authRepository.findOneByEmail(email);
-    if (user && (await bcrypt.compare(password, user.password))) {
+    const isSameUserType = (user.userType ?? UserType.NORMAL) === userType;
+
+    if (
+      user &&
+      (await bcrypt.compare(password, user.password)) &&
+      isSameUserType
+    ) {
       const { password, ...result } = user;
       return result;
     }
+
     return null;
   }
 
   async create(
     userInfo: CreateTokenRequestDto,
+    userType: UserType,
   ): Promise<CreateTokenResponseDto> {
-    const user = await this.validateUser(userInfo.email, userInfo.password);
+    const user = await this.validateUser(
+      userInfo.email,
+      userInfo.password,
+      userType,
+    );
 
     if (!user) {
       throw new UnauthorizedException(
@@ -46,15 +64,7 @@ export class AuthService {
       );
     }
 
-    // JWT 토큰 생성
-    const payload = { id: user.PK };
-    return {
-      access_token: this.jwtService.sign({ ...payload, isRefreshToken: false }),
-      refresh_token: this.jwtService.sign(
-        { ...payload, isRefreshToken: true },
-        { expiresIn: jwtConstants.refreshTokenExpiresIn },
-      ),
-    };
+    return await this.createToken(user);
   }
 
   async refreshToken(
@@ -86,18 +96,35 @@ export class AuthService {
 
   async OAuthLogin(
     socialLoginDto: SocialLoginRequestDto,
+    userType: UserType,
   ): Promise<CreateTokenResponseDto> {
     const { email, password } = socialLoginDto;
 
-    const user = await this.validateUser(email, password);
+    const user = await this.validateUser(email, password, userType);
 
     if (user) {
       //1.기존 가입 유저라면, token create
-      return await this.create({ email, password });
+      return await this.createToken(user);
     }
+
     //2. 신규 유저라면 회원가입 후 token create
-    await this.userService.create({ email, password });
-    return await this.create({ email, password });
+    const newUser = await this.userService.create(
+      { email, password },
+      userType,
+    );
+    return await this.createToken(newUser);
+  }
+
+  async createToken(user: any) {
+    // JWT 토큰 생성
+    const payload = { id: user.PK };
+    return {
+      access_token: this.jwtService.sign({ ...payload, isRefreshToken: false }),
+      refresh_token: this.jwtService.sign(
+        { ...payload, isRefreshToken: true },
+        { expiresIn: jwtConstants.refreshTokenExpiresIn },
+      ),
+    };
   }
 
   async sendEmail(

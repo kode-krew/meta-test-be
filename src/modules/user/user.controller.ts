@@ -37,6 +37,7 @@ import {
 import { GetUserTestResponseDto } from './dto/get-user-test-response.dto';
 import { CreateUserInfoConflictError } from './error/create-user-info-error';
 import { GetUserTestListRequestQueryBadRequestError } from './error/get-user-test-list-error';
+import { UserType } from 'src/types/userType';
 
 @ApiTags('users')
 @Controller({ path: 'users' })
@@ -122,7 +123,7 @@ export class UserController {
   })
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() createUserInfoDto: CreateUserInfoRequestDto) {
-    return await this.userService.create(createUserInfoDto);
+    return await this.userService.create(createUserInfoDto, UserType.NORMAL);
   }
 
   @Patch()
