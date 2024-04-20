@@ -41,9 +41,7 @@ export class UserController {
   // @ApiResponse({ status: 403, description: 'Forbidden.'})
   @HttpCode(HttpStatus.OK)
   async getUser(@Request() req) {
-    throw new NotFoundException('232323');
     const id = req.user.id;
-
     return await this.userService.getUserById(id);
   }
 
