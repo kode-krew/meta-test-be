@@ -1,28 +1,9 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Body,
-  Param,
-  Query,
-  HttpCode,
-  HttpStatus,
-  UsePipes,
-  ValidationPipe,
-  UseGuards,
-  Request,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiResponse,
-  ApiOperation,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { TestService } from './test.service';
-import { AuthGuard } from '@nestjs/passport';
-import { CreateTestRequestDto } from './dto/create-test-request.dto';
-import { CreateTestResponseDto } from './dto/create-test-response.dto';
+import { CreateTestRequestDto } from './dto/http/create-test-request.dto';
+import { CreateTestResponseDto } from './dto/http/create-test-response.dto';
+import { CreateTestErrorRequestBodyBadRequestErrorDto } from './dto/error/create-test-errror.dto';
 
 @ApiTags('test')
 @Controller({ path: 'test' })
@@ -36,7 +17,15 @@ export class TestController {
     description: 'Success',
     type: CreateTestResponseDto,
   })
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: CreateTestErrorRequestBodyBadRequestErrorDto,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.CREATED)
   async createUserTest(@Body() createTestRequestDto: CreateTestRequestDto) {
     return await this.testService.createTest(createTestRequestDto);

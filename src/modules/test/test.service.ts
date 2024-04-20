@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { TestRepository } from './test.repository';
-import { CreateTestRequestDto } from './dto/create-test-request.dto';
-import { CreateTestResponseDto } from './dto/create-test-response.dto';
+import { CreateTestRequestDto } from './dto/http/create-test-request.dto';
 
 @Injectable()
 export class TestService {

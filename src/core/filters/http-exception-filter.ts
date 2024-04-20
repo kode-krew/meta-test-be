@@ -15,6 +15,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
     const exceptionResponse = exception.getResponse();
 
+    // filter passport-jwt error
     if (exception instanceof UnauthorizedException) {
       if (
         typeof exceptionResponse === 'object' &&
