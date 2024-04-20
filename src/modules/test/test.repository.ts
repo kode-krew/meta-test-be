@@ -12,26 +12,25 @@ export class TestRepository {
   }
 
   async createTest(data: any): Promise<any> {
+    let id = data.id;
+
+    if (!id) {
+      id = uuidv4();
+    }
+
+    const testResult = calculateScoreAndCorrectWords(data);
+    const createdAt = new Date().toISOString();
+    const category = 'test';
+    const level = data.level;
+    const item = {
+      PK: id,
+      SK: `Test#${level}#${createdAt}`,
+      ...data,
+      ...testResult,
+      category,
+      createdAt,
+    };
     try {
-      let id = data.id;
-
-      if (!id) {
-        id = uuidv4();
-      }
-
-      const testResult = calculateScoreAndCorrectWords(data);
-      const createdAt = new Date().toISOString();
-      const category = 'test';
-      const level = data.level;
-      const item = {
-        PK: id,
-        SK: `Test#${level}#${createdAt}`,
-        ...data,
-        ...testResult,
-        category,
-        createdAt,
-      };
-
       await this.dynamoDb.put({
         TableName: this.tableName,
         Item: item,
