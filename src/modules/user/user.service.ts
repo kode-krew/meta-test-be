@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
-import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
-import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
-import { GetUserTestQueryDto } from './dto/get-user-test-query.dto';
-import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
+import { CreateUserInfoRequestDto } from './dto/http/create-user-info-request.dto';
+import { UpdateUserInfoRequestDto } from './dto/http/update-user-info-request.dto';
+import { GetUserTestQueryDto } from './dto/http/get-user-test-query.dto';
+import { CreateUserInfoResponseDto } from './dto/http/create-user-info-response.dto';
 
 @Injectable()
 export class UserService {

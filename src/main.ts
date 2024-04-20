@@ -4,7 +4,6 @@ import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
-import { HttpExceptionFilter } from 'src/core/filters/http-exception-filter';
 import { BaseExceptionFilter } from 'src/core/filters/base-exception-filter';
 
 async function bootstrap() {
@@ -31,7 +30,6 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new BaseExceptionFilter());
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));

@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -13,11 +14,33 @@ export class BaseExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
+    // filter passport-jwt error
+    if (exception instanceof UnauthorizedException) {
+      const status = exception.getStatus();
+      const exceptionResponse = exception.getResponse();
+
+      if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse !== null &&
+        exceptionResponse['message'] === 'Unauthorized'
+      ) {
+        response.status(status).json({
+          message: 'Invalid token',
+          error: 'Unauthorized',
+        });
+      } else {
+        response.status(status).json({
+          message: exceptionResponse['message'],
+          error: 'Unauthorized',
+        });
+      }
+    }
+
+    // filter class-validator
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      // Check if the response is an object and has a 'message' property
       if (
         typeof exceptionResponse === 'object' &&
         exceptionResponse !== null &&
@@ -26,17 +49,14 @@ export class BaseExceptionFilter implements ExceptionFilter {
         response.status(status).json({
           message: exceptionResponse['message'],
           error: exceptionResponse['error'] || exception.name,
-          statusCode: status,
         });
       } else {
-        // If the response is not an object or doesn't have a 'message' property, handle as a string or fallback
         response.status(status).json({
           message:
             typeof exceptionResponse === 'string'
               ? exceptionResponse
               : 'Unknown error',
           error: exception.name,
-          statusCode: status,
         });
       }
     } else {
@@ -44,7 +64,6 @@ export class BaseExceptionFilter implements ExceptionFilter {
       response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message: exception.message,
         error: 'Internal Server Error',
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       });
     }
   }

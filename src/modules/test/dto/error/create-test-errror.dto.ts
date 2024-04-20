@@ -23,9 +23,4 @@ export class CreateTestErrorRequestBodyBadRequestErrorDto {
     example: 'Bad Request',
   })
   error: 'Bad Request';
-
-  @ApiProperty({
-    example: 400,
-  })
-  statusCode: 400;
 }

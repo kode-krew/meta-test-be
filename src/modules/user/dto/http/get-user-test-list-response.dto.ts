@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TestLevel } from '../../test/test.entity';
+import { TestLevel } from '../../../test/test.entity';
 
 export class Item {
   @ApiProperty({

@@ -19,15 +19,15 @@ import {
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
-import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
-import { GetUserInfoResponseDto } from './dto/get-user-info-response.dto';
-import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
-import { UpdateUserInfoResponseDto } from './dto/update-user-info-response.dto';
-import { GetUserTestQueryDto } from './dto/get-user-test-query.dto';
-import { GetUserTestListResponseDto } from './dto/get-user-test-list-response.dto';
+import { CreateUserInfoRequestDto } from './dto/http/create-user-info-request.dto';
+import { CreateUserInfoResponseDto } from './dto/http/create-user-info-response.dto';
+import { GetUserInfoResponseDto } from './dto/http/get-user-info-response.dto';
+import { UpdateUserInfoRequestDto } from './dto/http/update-user-info-request.dto';
+import { UpdateUserInfoResponseDto } from './dto/http/update-user-info-response.dto';
+import { GetUserTestQueryDto } from './dto/http/get-user-test-query.dto';
+import { GetUserTestListResponseDto } from './dto/http/get-user-test-list-response.dto';
 import { TestLevel, Order } from '../test/test.entity';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { UnauthorizedErrorDto } from 'src/core/dto/unauthorized-error.dto';
 
 @ApiTags('users')
 @Controller({ path: 'users' })
@@ -39,7 +39,11 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ summary: '유저 정보 조회', description: '' })
   @ApiResponse({ status: 200, description: 'OK', type: GetUserInfoResponseDto })
-  // @ApiResponse({ status: 403, description: 'Forbidden.'})
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    type: UnauthorizedErrorDto,
+  })
   @HttpCode(HttpStatus.OK)
   async getUser(@Request() req) {
     const id = req.user.id;
