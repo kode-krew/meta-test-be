@@ -11,3 +11,15 @@ export class GetUserTestNotFoundError {
   })
   error: 'Not Found';
 }
+
+export class GetUserTestRequestQueryBadRequestError {
+  @ApiProperty({
+    example: ['sort_key must be a string'],
+  })
+  message: string[];
+
+  @ApiProperty({
+    example: 'Bad Request',
+  })
+  error: 'Bad Request';
+}

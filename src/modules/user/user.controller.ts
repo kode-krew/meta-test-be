@@ -30,9 +30,13 @@ import { TestLevel, Order } from '../test/test.entity';
 import { UnauthorizedError } from 'src/core/errors/unauthorized-error';
 import { GetUserInfoNotFoundError } from './error/get-user-info-error';
 import { GetUserTestQueryDto } from './dto/get-user-test-query.dto';
-import { GetUserTestNotFoundError } from './error/get-user-test-error';
+import {
+  GetUserTestNotFoundError,
+  GetUserTestRequestQueryBadRequestError,
+} from './error/get-user-test-error';
 import { GetUserTestResponseDto } from './dto/get-user-test-response.dto';
 import { CreateUserInfoConflictError } from './error/create-user-info-error';
+import { GetUserTestListRequestQueryBadRequestError } from './error/get-user-test-list-error';
 
 @ApiTags('users')
 @Controller({ path: 'users' })
@@ -124,7 +128,7 @@ export class UserController {
   @Patch()
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @ApiOperation({ summary: '유저 정보 수정', description: '' })
+  @ApiOperation({ summary: '유저 정보 수정(작업 중)', description: '' })
   @ApiResponse({
     status: 200,
     description: 'OK',
@@ -148,6 +152,11 @@ export class UserController {
     status: 200,
     description: 'OK',
     type: GetUserTestListResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: GetUserTestListRequestQueryBadRequestError,
   })
   @ApiResponse({
     status: 401,
@@ -176,6 +185,11 @@ export class UserController {
     status: 200,
     description: 'OK',
     type: GetUserTestResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: GetUserTestRequestQueryBadRequestError,
   })
   @ApiResponse({
     status: 401,
