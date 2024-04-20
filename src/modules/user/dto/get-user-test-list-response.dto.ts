@@ -54,7 +54,7 @@ export class Item {
   SortKey: string;
 }
 
-export class GetUserTestResponseDto {
+export class GetUserTestListResponseDto {
   @ApiProperty({ type: [Item], description: 'The list of items' })
   items: Item[];
 

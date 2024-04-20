@@ -25,9 +25,10 @@ import { GetUserInfoResponseDto } from './dto/get-user-info-response.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
 import { UpdateUserInfoResponseDto } from './dto/update-user-info-response.dto';
 import { GetUserTestQueryDto } from './dto/get-user-test-query.dto';
-import { GetUserTestResponseDto } from './dto/get-user-test-response.dto';
+import { GetUserTestListResponseDto } from './dto/get-user-test-list-response.dto';
 import { TestLevel, Order } from '../test/test.entity';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
+
 @ApiTags('users')
 @Controller({ path: 'users' })
 export class UserController {
@@ -80,11 +81,18 @@ export class UserController {
   @Get('/test')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @ApiOperation({ summary: '유저 테스트 정보 조회', description: '' })
-  @ApiResponse({ status: 200, description: 'OK', type: GetUserTestResponseDto })
+  @ApiOperation({ summary: '유저 테스트 리스트 정보 조회', description: '' })
+  @ApiResponse({
+    status: 200,
+    description: 'OK',
+    type: GetUserTestListResponseDto,
+  })
   // @ApiResponse({ status: 403, description: 'Forbidden.'})
   @HttpCode(HttpStatus.OK)
-  async geteUserTest(@Request() req: any, @Query() query: GetUserTestQueryDto) {
+  async geteUserTestList(
+    @Request() req: any,
+    @Query() query: GetUserTestQueryDto,
+  ) {
     const id = req.user.id;
     // set query params
     query.order = query.order || Order.Desc;
