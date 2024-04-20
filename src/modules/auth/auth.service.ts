@@ -34,7 +34,7 @@ export class AuthService {
   ): Promise<any> {
     //NOTE: email & userType까지 동일해야 동일 유저
     const user = await this.authRepository.findOneByEmail(email);
-    const isSameUserType = (user.userType ?? UserType.NORMAL) === userType;
+    const isSameUserType = (user?.userType ?? UserType.NORMAL) === userType;
 
     if (
       user &&
