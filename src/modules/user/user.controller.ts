@@ -67,7 +67,46 @@ export class UserController {
     description: 'Created',
     type: CreateUserInfoResponseDto,
   })
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    content: {
+      'application/json': {
+        examples: {
+          CreateUserInfoRequestBodyBadRequestError: {
+            value: {
+              message: 'Unexpected end of JSON input',
+              error: 'Bad Request',
+            },
+            description: '요청 바디 형식이 맞지 않음',
+          },
+          CreateUserInfoRequestBodyBadRequestError2: {
+            value: {
+              message: [
+                'email should not be empty',
+                'email must be an email',
+                'password must be a string',
+                'password must be longer than or equal to 8 characters',
+              ],
+              error: 'Bad Request',
+            },
+            description: '유효하지 않은 요청 바디',
+          },
+          CreateUserInfoRequestBodyBadRequestError3: {
+            value: {
+              message: 'User exists',
+              error: 'Bad Request',
+            },
+            description: '이메일과 매칭되는 유저가 이미 존재함',
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() createUserInfoDto: CreateUserInfoRequestDto) {
     return await this.userService.create(createUserInfoDto);
