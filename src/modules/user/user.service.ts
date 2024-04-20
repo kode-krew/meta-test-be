@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
@@ -31,7 +35,7 @@ export class UserService {
     const user = await this.usersRepository.findOneByEmail(userInfo.email);
 
     if (user) {
-      throw new BadRequestException('User exists');
+      throw new ConflictException('User exists');
     }
 
     const item = await this.usersRepository.create(userInfo);

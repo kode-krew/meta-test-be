@@ -32,6 +32,7 @@ import { GetUserInfoNotFoundError } from './error/get-user-info-error';
 import { GetUserTestQueryDto } from './dto/get-user-test-query.dto';
 import { GetUserTestNotFoundError } from './error/get-user-test-error';
 import { GetUserTestResponseDto } from './dto/get-user-test-response.dto';
+import { CreateUserInfoConflictError } from './error/create-user-info-error';
 
 @ApiTags('users')
 @Controller({ path: 'users' })
@@ -105,6 +106,11 @@ export class UserController {
         },
       },
     },
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User exists',
+    type: CreateUserInfoConflictError,
   })
   @ApiResponse({
     status: 500,
