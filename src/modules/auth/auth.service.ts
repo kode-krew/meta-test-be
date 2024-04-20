@@ -9,7 +9,11 @@ import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
-import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  NotFoundException,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { generatePassword } from 'src/core/utils/password.util';
 import { sesClient } from 'src/core/config/aws.config';
 import { SendEmailCommand } from '@aws-sdk/client-ses';
@@ -59,7 +63,7 @@ export class AuthService {
     );
 
     if (!user) {
-      throw new UnauthorizedException(
+      throw new BadRequestException(
         'User not found or password does not match',
       );
     }
