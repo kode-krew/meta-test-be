@@ -8,13 +8,13 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 
-@Catch(Error)
+@Catch()
 export class BaseExceptionFilter implements ExceptionFilter {
-  catch(exception: Error, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    // filter passport-jwt error
+    // Passport-JWT error
     if (exception instanceof UnauthorizedException) {
       const status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
@@ -24,19 +24,19 @@ export class BaseExceptionFilter implements ExceptionFilter {
         exceptionResponse !== null &&
         exceptionResponse['message'] === 'Unauthorized'
       ) {
-        response.status(status).json({
+        return response.status(status).json({
           message: 'Invalid token',
           error: 'Unauthorized',
         });
       } else {
-        response.status(status).json({
+        return response.status(status).json({
           message: exceptionResponse['message'],
           error: 'Unauthorized',
         });
       }
     }
 
-    // filter class-validator
+    // Class-validator
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
@@ -46,12 +46,12 @@ export class BaseExceptionFilter implements ExceptionFilter {
         exceptionResponse !== null &&
         'message' in exceptionResponse
       ) {
-        response.status(status).json({
+        return response.status(status).json({
           message: exceptionResponse['message'],
           error: exceptionResponse['error'] || exception.name,
         });
       } else {
-        response.status(status).json({
+        return response.status(status).json({
           message:
             typeof exceptionResponse === 'string'
               ? exceptionResponse
@@ -59,12 +59,12 @@ export class BaseExceptionFilter implements ExceptionFilter {
           error: exception.name,
         });
       }
-    } else {
-      // Non-HttpException errors
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: exception.message,
-        error: 'Internal Server Error',
-      });
     }
+
+    // Non-HttpException errors
+    return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      message: exception instanceof Error ? exception.message : 'Unknown error',
+      error: 'Internal Server Error',
+    });
   }
 }
