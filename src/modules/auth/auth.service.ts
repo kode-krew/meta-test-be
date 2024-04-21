@@ -190,11 +190,6 @@ export class AuthService {
   }
 
   async createEmailVerificaiton(email: string): Promise<void> {
-    // const user = await this.userRepository.findOneByEmail(email);
-    // if (user) {
-    //   throw new BadRequestException('Invalid email');
-    // }
-
     const item = await this.authRepository.createEmailAuthentication(email);
     const token = item.PK;
     const baseUrl = process.env.EMAIL_VERIFICATION_BASE_URL;
@@ -223,7 +218,7 @@ export class AuthService {
     const expirationDate = new Date(item.expireAt);
 
     if (item.is_verified || expirationDate < now) {
-      throw new UnauthorizedException('Expired token');
+      throw new UnauthorizedException('Token expired');
     }
 
     return await this.authRepository.updateEmailVerificaitonToken(token);

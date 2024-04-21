@@ -27,6 +27,9 @@ import { UserType } from 'src/types/userType';
 import { CreateTokenBadRequestError } from './error/create-token-error';
 import { RefreshTokenRequestBodyBadRequestError } from './error/refresh-token-error';
 import { ResetPasswordRequestBodyBadRequestError } from './error/reset-password-error';
+import { EmailVerificationRequestBodyBadRequestError } from './error/email-verification-error';
+import { UpdateEmailVerificationRequestBodyBadRequestError } from './error/update-email-verification-error';
+import { UnauthorizedError } from 'src/core/errors/unauthorized-error';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -241,7 +244,15 @@ export class AuthController {
     status: 201,
     description: 'Created',
   })
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: EmailVerificationRequestBodyBadRequestError,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.CREATED)
   async createEmailVerificaiton(@Body() body: EmailVerificationRequestDto) {
     const email = body.email;
@@ -257,7 +268,39 @@ export class AuthController {
     status: 200,
     description: 'OK',
   })
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: UpdateEmailVerificationRequestBodyBadRequestError,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    content: {
+      'application/json': {
+        examples: {
+          UnauthorizedError: {
+            value: {
+              message: 'Invalid token',
+              error: 'Unauthorized',
+            },
+            description: '유효하지 않은 토큰',
+          },
+          UnauthorizedError2: {
+            value: {
+              message: 'Token expired',
+              error: 'Unauthorized',
+            },
+            description: '토큰 만료됨',
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.OK)
   async updateEmailVerificaiton(
     @Body() body: UpdateEmailVerificationRequestDto,
