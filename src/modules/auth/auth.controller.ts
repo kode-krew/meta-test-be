@@ -25,6 +25,8 @@ import { EmailVerificationRequestDto } from './dto/email-verification-request.dt
 import { UpdateEmailVerificationRequestDto } from './dto/update-email-verification-request.dto';
 import { UserType } from 'src/types/userType';
 import { CreateTokenBadRequestError } from './error/create-token-error';
+import { RefreshTokenRequestBodyBadRequestError } from './error/refresh-token-error';
+import { ResetPasswordRequestBodyBadRequestError } from './error/reset-password-error';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -78,7 +80,7 @@ export class AuthController {
   @ApiResponse({
     status: 400,
     description: 'Bad request',
-    type: RefreshTokenRequestDto,
+    type: RefreshTokenRequestBodyBadRequestError,
   })
   @ApiResponse({
     status: 401,
@@ -203,7 +205,27 @@ export class AuthController {
     status: 200,
     description: 'OK',
   })
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: ResetPasswordRequestBodyBadRequestError,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
+    content: {
+      'application/json': {
+        example: {
+          message: 'User does not exist',
+          error: 'Not Found',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.OK)
   async updateUserPassword(@Body() body: ResetPasswordRequestDto) {
     const email = body.email;
