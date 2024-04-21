@@ -24,6 +24,7 @@ import { ResetPasswordRequestDto } from './dto/reset-password-request.dto';
 import { EmailVerificationRequestDto } from './dto/email-verification-request.dto';
 import { UpdateEmailVerificationRequestDto } from './dto/update-email-verification-request.dto';
 import { UserType } from 'src/types/userType';
+import { CreateTokenBadRequestError } from './error/create-token-error';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -34,10 +35,17 @@ export class AuthController {
   @ApiOperation({ summary: '로그인', description: '토큰 발급' })
   @ApiResponse({
     status: 201,
-    description: 'Created',
-    type: CreateTokenResponseDto,
+    description: 'Created(access_token, refresh_token in the header)',
   })
-  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: CreateTokenBadRequestError,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.CREATED)
   async createToken(
     @Body() createTokenInfoDto: CreateTokenRequestDto,
@@ -65,11 +73,29 @@ export class AuthController {
   })
   @ApiResponse({
     status: 201,
-    description: 'Created',
-    type: RefreshTokenResponseDto,
+    description: 'Created(access_token, refresh_token in the header)',
   })
-
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: RefreshTokenRequestDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    content: {
+      'application/json': {
+        example: {
+          message: 'Invalid token',
+          error: 'Unauthorized',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.CREATED)
   async refreshToken(
     @Body() refreshTokenInfoDto: RefreshTokenRequestDto,
@@ -92,7 +118,23 @@ export class AuthController {
   })
   @ApiResponse({
     status: 201,
-    description: 'Created',
+    description: 'Created(access_token, refresh_token in the header)',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    content: {
+      'application/json': {
+        example: {
+          message: 'User exists',
+          error: 'Conflict',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
   })
   @UseGuards(KakaoAuthGuard)
   @Get('login/kakao')
@@ -117,7 +159,23 @@ export class AuthController {
   })
   @ApiResponse({
     status: 201,
-    description: 'Created',
+    description: 'Created(access_token, refresh_token in the header)',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    content: {
+      'application/json': {
+        example: {
+          message: 'User exists',
+          error: 'Conflict',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
   })
   @UseGuards(GoogleAuthGuard)
   @Get('login/google')
