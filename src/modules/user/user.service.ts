@@ -3,16 +3,21 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
 import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
 import { UserType } from 'src/types/userType';
+import { AuthRepository } from '../auth/auth.repository';
 
 @Injectable()
 export class UserService {
-  constructor(private usersRepository: UserRepository) {}
+  constructor(
+    private usersRepository: UserRepository,
+    private authRepository: AuthRepository,
+  ) {}
 
   async getUserById(id: string): Promise<any> {
     const user = await this.usersRepository.findOneById(id);
@@ -34,6 +39,15 @@ export class UserService {
     userInfo: CreateUserInfoRequestDto,
     userType: UserType,
   ): Promise<CreateUserInfoResponseDto> {
+    // 일반 회원가입의 경우, 이메일 인증 여부 확인
+    if (userType === UserType.NORMAL) {
+      const emailVerification =
+        await this.authRepository.findEmailVerificationByEmail(userInfo.email);
+      if (!emailVerification || !emailVerification.is_verified) {
+        throw new UnauthorizedException('Invalid email verification');
+      }
+    }
+
     const user = await this.usersRepository.findOneByEmail(userInfo.email);
 
     const isSameUserType = userType === (user?.userType ?? UserType.NORMAL);

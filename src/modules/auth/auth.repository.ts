@@ -62,6 +62,25 @@ export class AuthRepository {
     return Item;
   }
 
+  async findEmailVerificationByEmail(email: string): Promise<any> {
+    const result = await this.dynamoDb.query({
+      TableName: this.emailVerificationTableName,
+      IndexName: 'email-createdAt-index',
+      KeyConditionExpression: 'email = :email',
+      ExpressionAttributeValues: {
+        ':email': email,
+      },
+      ScanIndexForward: false, // order by desc
+      Limit: 1, // latest
+    });
+
+    if (result.Items.length === 0) {
+      return null;
+    }
+
+    return result.Items[0];
+  }
+
   async updateEmailVerificaitonToken(token: string): Promise<any> {
     const result = await this.dynamoDb.update({
       TableName: this.emailVerificationTableName,
