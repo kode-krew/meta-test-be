@@ -113,18 +113,6 @@ export class UserController {
     },
   })
   @ApiResponse({
-    status: 401,
-    description: 'Unauthorized',
-    content: {
-      'application/json': {
-        example: {
-          message: 'Invalid email verification',
-          error: 'Unauthorized',
-        },
-      },
-    },
-  })
-  @ApiResponse({
     status: 409,
     description: 'User exists',
     type: CreateUserInfoConflictError,
@@ -135,6 +123,7 @@ export class UserController {
   })
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() createUserInfoDto: CreateUserInfoRequestDto) {
+    //NOTE: createUser는 일반 유저의 경우만 호출가능
     return await this.userService.create(createUserInfoDto, UserType.NORMAL);
   }
 
