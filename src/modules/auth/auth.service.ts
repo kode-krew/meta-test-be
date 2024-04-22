@@ -9,11 +9,7 @@ import { RefreshTokenResponseDto } from './dto/refresh-token-response.dto';
 import { SocialLoginRequestDto } from './dto/social-login-request.dto';
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
-import {
-  NotFoundException,
-  UnauthorizedException,
-  BadRequestException,
-} from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { generatePassword } from 'src/core/utils/password.util';
 import { sesClient } from 'src/core/config/aws.config';
 import { SendEmailCommand } from '@aws-sdk/client-ses';
@@ -37,14 +33,9 @@ export class AuthService {
     userType: UserType,
   ): Promise<any> {
     //NOTE: email & userType까지 동일해야 동일 유저
-    const user = await this.authRepository.findOneByEmail(email);
-    const isSameUserType = (user?.userType ?? UserType.NORMAL) === userType;
+    const user = await this.authRepository.findOneByEmail(email, userType);
 
-    if (
-      user &&
-      (await bcrypt.compare(password, user.password)) &&
-      isSameUserType
-    ) {
+    if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user;
       return result;
     }
@@ -63,7 +54,7 @@ export class AuthService {
     );
 
     if (!user) {
-      throw new BadRequestException(
+      throw new UnauthorizedException(
         'User not found or password does not match',
       );
     }
@@ -116,6 +107,7 @@ export class AuthService {
       { email, password },
       userType,
     );
+
     return await this.createToken(newUser);
   }
 
@@ -165,8 +157,8 @@ export class AuthService {
     }
   }
 
-  async resetUserPassword(email: string): Promise<void> {
-    const user = await this.userRepository.findOneByEmail(email);
+  async resetUserPassword(email: string, userType: UserType): Promise<void> {
+    const user = await this.userRepository.findOneByEmail(email, userType);
     if (!user) {
       throw new NotFoundException('User does not exist');
     }
@@ -190,6 +182,11 @@ export class AuthService {
   }
 
   async createEmailVerificaiton(email: string): Promise<void> {
+    // const user = await this.userRepository.findOneByEmail(email);
+    // if (user) {
+    //   throw new BadRequestException('Invalid email');
+    // }
+
     const item = await this.authRepository.createEmailAuthentication(email);
     const token = item.PK;
     const baseUrl = process.env.EMAIL_VERIFICATION_BASE_URL;
@@ -218,7 +215,7 @@ export class AuthService {
     const expirationDate = new Date(item.expireAt);
 
     if (item.is_verified || expirationDate < now) {
-      throw new UnauthorizedException('Token expired');
+      throw new UnauthorizedException('Expired token');
     }
 
     return await this.authRepository.updateEmailVerificaitonToken(token);

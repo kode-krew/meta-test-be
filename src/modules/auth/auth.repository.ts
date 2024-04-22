@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
+import { UserType } from 'src/types/userType';
 
 @Injectable()
 export class AuthRepository {
@@ -13,7 +14,7 @@ export class AuthRepository {
       process.env.AWS_DYNAMODB_EMAIL_VERIFICATION_TABLE_NAME;
   }
 
-  async findOneByEmail(email: string): Promise<any> {
+  async findOneByEmail(email: string, userType: UserType): Promise<any> {
     const result = await this.dynamoDb.query({
       TableName: this.tableName,
       IndexName: 'email-index',
@@ -23,7 +24,10 @@ export class AuthRepository {
       },
     });
 
-    return result.Items ? result.Items[0] : null;
+    const foundUserWithUserType =
+      result.Items.find((user) => user?.userType === userType) ?? null;
+
+    return result.Items ? foundUserWithUserType : null;
   }
 
   async createEmailAuthentication(email: string): Promise<any> {
@@ -60,25 +64,6 @@ export class AuthRepository {
     });
     const { Item, ...$metadata } = result;
     return Item;
-  }
-
-  async findEmailVerificationByEmail(email: string): Promise<any> {
-    const result = await this.dynamoDb.query({
-      TableName: this.emailVerificationTableName,
-      IndexName: 'email-createdAt-index',
-      KeyConditionExpression: 'email = :email',
-      ExpressionAttributeValues: {
-        ':email': email,
-      },
-      ScanIndexForward: false, // order by desc
-      Limit: 1, // latest
-    });
-
-    if (result.Items.length === 0) {
-      return null;
-    }
-
-    return result.Items[0];
   }
 
   async updateEmailVerificaitonToken(token: string): Promise<any> {

@@ -3,6 +3,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 import * as bcrypt from 'bcrypt';
 import { DatabaseError } from 'src/core/errors/database-error';
+import { UserType } from 'src/types/userType';
 
 @Injectable()
 export class UserRepository {
@@ -27,7 +28,7 @@ export class UserRepository {
     }
   }
 
-  async findOneByEmail(email: string): Promise<any> {
+  async findOneByEmail(email: string, userType: UserType): Promise<any> {
     try {
       const result = await this.dynamoDb.query({
         TableName: this.tableName,
@@ -37,7 +38,10 @@ export class UserRepository {
           ':email': email,
         },
       });
-      return result.Items ? result.Items[0] : null;
+      const foundUserWithUserType =
+        result.Items.find((user) => user?.userType === userType) ?? null;
+
+      return result.Items ? foundUserWithUserType : null;
     } catch (e) {
       throw new DatabaseError();
     }
