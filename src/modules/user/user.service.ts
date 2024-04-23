@@ -34,7 +34,7 @@ export class UserService {
     userInfo: CreateUserInfoRequestDto,
     userType: UserType,
   ): Promise<CreateUserInfoResponseDto> {
-    const user = await this.usersRepository.findOneByEmail(
+    const user = await this.usersRepository.findOneByEmailAndUserType(
       userInfo.email,
       userType,
     );
