@@ -10,7 +10,6 @@ jobs:
   # 빌드
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Get Github Actions IP
         id: ip
