@@ -32,9 +32,9 @@ jobs:
           chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "bash git-action.sh"
         env:
-          DEV_USER: ${{secrets.USER}}
-          DEV_HOST: ${{secrets.HOST}}
-          DEV_SSH_KEY: ${{secrets.SSH_KEY}}
+          USER: ${{secrets.USER}}
+          HOST: ${{secrets.HOST}}
+          SSH_KEY: ${{secrets.SSH_KEY}}
 
       - name: Remove Github Actions IP From Security Group
         run: |
