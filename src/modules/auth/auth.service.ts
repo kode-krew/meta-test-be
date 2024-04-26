@@ -33,7 +33,10 @@ export class AuthService {
     userType: UserType,
   ): Promise<any> {
     //NOTE: email & userType까지 동일해야 동일 유저
-    const user = await this.authRepository.findOneByEmail(email, userType);
+    const user = await this.authRepository.findOneByEmailAndUserType(
+      email,
+      userType,
+    );
 
     if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user;
@@ -158,7 +161,10 @@ export class AuthService {
   }
 
   async resetUserPassword(email: string, userType: UserType): Promise<void> {
-    const user = await this.userRepository.findOneByEmail(email, userType);
+    const user = await this.userRepository.findOneByEmailAndUserType(
+      email,
+      userType,
+    );
     if (!user) {
       throw new NotFoundException('User does not exist');
     }

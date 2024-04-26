@@ -28,20 +28,22 @@ export class UserRepository {
     }
   }
 
-  async findOneByEmail(email: string, userType: UserType): Promise<any> {
+  async findOneByEmailAndUserType(
+    email: string,
+    userType: UserType,
+  ): Promise<any> {
     try {
       const result = await this.dynamoDb.query({
         TableName: this.tableName,
-        IndexName: 'email-index',
-        KeyConditionExpression: 'email = :email',
+        IndexName: 'email-userType-index',
+        KeyConditionExpression: 'email = :email AND userType = :userType',
         ExpressionAttributeValues: {
           ':email': email,
+          ':userType': userType,
         },
       });
-      const foundUserWithUserType =
-        result.Items.find((user) => user?.userType === userType) ?? null;
 
-      return result.Items ? foundUserWithUserType : null;
+      return result.Items ? result.Items[0] : null;
     } catch (e) {
       throw new DatabaseError();
     }
