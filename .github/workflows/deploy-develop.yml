@@ -30,7 +30,7 @@ jobs:
         run: |
           echo "$SSH_KEY" >> key.pem
           chmod 600 key.pem
-          ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "bash test.sh"
+          ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "bash git-action.sh"
         env:
           DEV_USER: ${{secrets.USER}}
           DEV_HOST: ${{secrets.HOST}}
