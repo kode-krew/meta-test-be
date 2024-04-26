@@ -113,6 +113,18 @@ export class UserController {
     },
   })
   @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    content: {
+      'application/json': {
+        example: {
+          message: 'Invalid email verification',
+          error: 'Unauthorized',
+        },
+      },
+    },
+  })
+  @ApiResponse({
     status: 409,
     description: 'User exists',
     type: CreateUserInfoConflictError,

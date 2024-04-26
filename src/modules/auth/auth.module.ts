@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { AuthRepository } from './auth.repository';
@@ -21,7 +21,7 @@ import { jwtConstants } from 'src/core/config/jwt';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: jwtConstants.accessTokenExpiresIn },
     }),
-    UserModule,
+    forwardRef(() => UserModule),
   ],
   controllers: [AuthController],
   providers: [
@@ -34,6 +34,6 @@ import { jwtConstants } from 'src/core/config/jwt';
     GoogleStrategy,
     UserRepository,
   ],
-  exports: [AuthService],
+  exports: [AuthService, AuthRepository],
 })
 export class AuthModule {}

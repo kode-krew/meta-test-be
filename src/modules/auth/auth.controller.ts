@@ -30,6 +30,7 @@ import { RefreshTokenRequestBodyError } from './error/refresh-token-error';
 import { ResetPasswordRequestBodyError } from './error/reset-password-error';
 import { EmailVerificationRequestBodyError } from './error/email-verification-error';
 import { UpdateEmailVerificationRequestBodyError } from './error/update-email-verification-error';
+import { EmailVerificationResponseDto } from './dto/email-verification-response.dto';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -228,6 +229,7 @@ export class AuthController {
   @ApiResponse({
     status: 201,
     description: 'Created',
+    type: EmailVerificationResponseDto,
   })
   @ApiResponse({
     status: 400,
