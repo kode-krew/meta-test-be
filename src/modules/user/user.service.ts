@@ -94,7 +94,7 @@ export class UserService {
       level,
       startKey,
     );
-    console.log('userTestList:', userTestList);
+
     return userTestList;
   }
 

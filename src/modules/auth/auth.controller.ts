@@ -24,6 +24,11 @@ import { ResetPasswordRequestDto } from './dto/reset-password-request.dto';
 import { EmailVerificationRequestDto } from './dto/email-verification-request.dto';
 import { UpdateEmailVerificationRequestDto } from './dto/update-email-verification-request.dto';
 import { UserType } from 'src/types/userType';
+import { CreateTokenRequestBodyError } from './error/create-token-error';
+import { RefreshTokenRequestBodyError } from './error/refresh-token-error';
+import { ResetPasswordRequestBodyError } from './error/reset-password-error';
+import { EmailVerificationRequestBodyError } from './error/email-verification-error';
+import { UpdateEmailVerificationRequestBodyError } from './error/update-email-verification-error';
 
 @ApiTags('auth')
 @Controller({ path: 'auth' })
@@ -37,7 +42,27 @@ export class AuthController {
     description: 'Created',
     type: CreateTokenResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: CreateTokenRequestBodyError,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    content: {
+      'application/json': {
+        example: {
+          message: 'User not found or password does not match',
+          error: 'Unauthorized',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.CREATED)
   async createToken(
     @Body() createTokenInfoDto: CreateTokenRequestDto,
@@ -68,8 +93,27 @@ export class AuthController {
     description: 'Created',
     type: RefreshTokenResponseDto,
   })
-
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: RefreshTokenRequestBodyError,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    content: {
+      'application/json': {
+        example: {
+          message: 'Invalid token',
+          error: 'Unauthorized',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.CREATED)
   async refreshToken(
     @Body() refreshTokenInfoDto: RefreshTokenRequestDto,
@@ -147,7 +191,27 @@ export class AuthController {
     status: 200,
     description: 'OK',
   })
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: ResetPasswordRequestBodyError,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not Found',
+    content: {
+      'application/json': {
+        example: {
+          message: 'User does not exist',
+          error: 'Not Found',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.OK)
   async updateUserPassword(@Body() body: ResetPasswordRequestDto) {
     const email = body.email;
@@ -164,7 +228,15 @@ export class AuthController {
     status: 201,
     description: 'Created',
   })
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: EmailVerificationRequestBodyError,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.CREATED)
   async createEmailVerificaiton(
     @Body() body: EmailVerificationRequestDto,
@@ -184,7 +256,46 @@ export class AuthController {
     status: 200,
     description: 'OK',
   })
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    type: UpdateEmailVerificationRequestBodyError,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    content: {
+      'application/json': {
+        examples: {
+          UpdateEmailVerificationUnauthorizedError: {
+            value: {
+              message: 'Invalid request_id',
+              error: 'Unauthorized',
+            },
+            description: 'request_id가 유효하지 않음',
+          },
+          UpdateEmailVerificationUnauthorizedError2: {
+            value: {
+              message: 'Invalid code',
+              error: 'Unauthorized',
+            },
+            description: 'code가 유효하지 않음',
+          },
+          UpdateEmailVerificationUnauthorizedError3: {
+            value: {
+              message: 'Expired request_id',
+              error: 'Unauthorized',
+            },
+            description: 'request_id가 만료됨',
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.OK)
   async updateEmailVerificaiton(
     @Body() body: UpdateEmailVerificationRequestDto,
