@@ -18,7 +18,6 @@ export class BaseExceptionFilter implements ExceptionFilter {
     if (exception instanceof UnauthorizedException) {
       const status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
-
       if (
         typeof exceptionResponse === 'object' &&
         exceptionResponse !== null &&
@@ -34,13 +33,13 @@ export class BaseExceptionFilter implements ExceptionFilter {
           error: 'Unauthorized',
         });
       }
+      return;
     }
 
     // filter class-validator
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
-
       if (
         typeof exceptionResponse === 'object' &&
         exceptionResponse !== null &&
@@ -59,12 +58,14 @@ export class BaseExceptionFilter implements ExceptionFilter {
           error: exception.name,
         });
       }
-    } else {
-      // Non-HttpException errors
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: exception.message,
-        error: 'Internal Server Error',
-      });
+      return;
     }
+
+    // Non-HttpException errors
+    response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      message: exception.message,
+      error: 'Internal Server Error',
+    });
+    return;
   }
 }

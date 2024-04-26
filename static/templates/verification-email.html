@@ -20,11 +20,12 @@
        h2 {
            color: #444;
        }
-       .password-reset {
+       .code-verification {
            background-color: #e8f0fe;
            padding: 10px;
            margin: 20px 0;
            border-left: 4px solid #2196F3;
+           font-size: 1.2em;
            font-weight: bold;
        }
        .footer {
@@ -39,15 +40,14 @@
    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Email Verification Required</h2>
-        <p>You are receiving this email because you have started the registration process with our service.</p>
-        <p>To continue with your registration, please verify your email address by clicking on the link below:</p>
-        <p><a href="{{baseUrl}}/auth/email-verification?token={{token}}" target="_blank" style="color: blue;">Verify Email Address</a></p><br>
-        <p>After verifying your email, please return to the registration page to continue with your sign-up process.</p>
-        <div class="footer">
-            <p>Thank you for using our service!</p>
-        </div>
-    </div>  
+   <div class="container">
+       <h2>Email Verification Required</h2>
+       <p>You are receiving this email because you have started the registration process with our service.</p>
+       <p class="code-verification">Verification Code: <span style="font-size: 1.2em; font-weight: bold;">{{code}}</span></p><br>
+       <p class="spacing">Please enter this code on the registration page to continue with your sign-up process.</p>
+       <div class="footer">
+           <p>Thank you for using our service!</p>
+       </div>
+   </div>
 </body>
 </html>

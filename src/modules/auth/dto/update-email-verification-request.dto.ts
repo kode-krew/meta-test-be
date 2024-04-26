@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateEmailVerificationRequestDto {
@@ -6,8 +6,17 @@ export class UpdateEmailVerificationRequestDto {
   @IsString()
   @ApiProperty({
     required: true,
-    example: 'valid.temp.token',
-    description: 'temp token',
+    example: 'e4e74363-c3ed-45fb-ba68-faad0ef45ab3',
+    description: 'request id',
   })
-  token: string;
+  request_id: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @ApiProperty({
+    required: true,
+    example: 1234,
+    description: 'auth code',
+  })
+  code: number;
 }

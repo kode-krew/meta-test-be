@@ -187,20 +187,14 @@ export class AuthService {
     );
   }
 
-  async createEmailVerificaiton(email: string): Promise<void> {
-    // const user = await this.userRepository.findOneByEmail(email);
-    // if (user) {
-    //   throw new BadRequestException('Invalid email');
-    // }
-
+  async createEmailVerificaiton(email: string): Promise<string> {
     const item = await this.authRepository.createEmailAuthentication(email);
-    const token = item.PK;
-    const baseUrl = process.env.EMAIL_VERIFICATION_BASE_URL;
+    const code = item.code;
 
     // 사용자에게 이메일 전송
     const htmlContent = readHtmlFile(
       join(__dirname, '../../../static/templates/verification-email.html'),
-      { baseUrl, token },
+      { code },
     );
 
     await this.sendEmail(
@@ -208,22 +202,27 @@ export class AuthService {
       '[Metacognition] Email address verification request',
       htmlContent,
     );
+
+    return item.PK;
   }
 
-  async updateEmailVerificaiton(token: string): Promise<void> {
-    const item =
-      await this.authRepository.findOneByEmailVerificaitonToken(token);
+  async updateEmailVerificaiton(id: string, code: number): Promise<void> {
+    const item = await this.authRepository.findOneByEmailVerificaitonId(id);
     if (!item) {
-      throw new UnauthorizedException('Invalid token');
+      throw new UnauthorizedException('Invalid request_id');
+    }
+
+    if (Number(item.code) !== code) {
+      throw new UnauthorizedException('Invalid code');
     }
 
     const now = new Date();
     const expirationDate = new Date(item.expireAt);
 
     if (item.is_verified || expirationDate < now) {
-      throw new UnauthorizedException('Expired token');
+      throw new UnauthorizedException('Expired request_id');
     }
 
-    return await this.authRepository.updateEmailVerificaitonToken(token);
+    return await this.authRepository.updateEmailVerificaitonId(id);
   }
 }

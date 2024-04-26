@@ -166,9 +166,13 @@ export class AuthController {
   })
   // @ApiResponse({ status: 400, description: 'Bad request'})
   @HttpCode(HttpStatus.CREATED)
-  async createEmailVerificaiton(@Body() body: EmailVerificationRequestDto) {
+  async createEmailVerificaiton(
+    @Body() body: EmailVerificationRequestDto,
+    @Res() res: Response,
+  ) {
     const email = body.email;
-    return await this.authService.createEmailVerificaiton(email);
+    const request_id = await this.authService.createEmailVerificaiton(email);
+    res.status(HttpStatus.CREATED).send({ request_id });
   }
 
   @Patch('email-verification')
@@ -186,8 +190,9 @@ export class AuthController {
     @Body() body: UpdateEmailVerificationRequestDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const token = body.token;
-    await this.authService.updateEmailVerificaiton(token);
+    const id = body.request_id;
+    const code = body.code;
+    await this.authService.updateEmailVerificaiton(id, code);
     res.status(HttpStatus.OK).send();
   }
 }
