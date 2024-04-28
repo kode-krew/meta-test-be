@@ -11,6 +11,7 @@ import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
 import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
 import { UserType } from 'src/types/userType';
 import { AuthRepository } from '../auth/auth.repository';
+import { generateRandomNickName } from 'src/core/utils/generate-random-nickname.util';
 
 @Injectable()
 export class UserService {
@@ -54,6 +55,11 @@ export class UserService {
 
     if (user) {
       throw new ConflictException('User exists');
+    }
+
+    if (!userInfo.nickname) {
+      const nickName = generateRandomNickName();
+      userInfo['nickname'] = nickName;
     }
 
     const item = await this.usersRepository.create({ ...userInfo, userType });
