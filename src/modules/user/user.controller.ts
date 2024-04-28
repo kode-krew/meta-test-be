@@ -142,13 +142,62 @@ export class UserController {
   @Patch()
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @ApiOperation({ summary: '유저 정보 수정(작업 중)', description: '' })
+  @ApiOperation({ summary: '유저 정보 수정', description: '' })
   @ApiResponse({
     status: 200,
     description: 'OK',
     type: UpdateUserInfoResponseDto,
   })
-  // @ApiResponse({ status: 400, description: 'Bad request'})
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    content: {
+      'application/json': {
+        examples: {
+          UpdateUserInfoRequestBodyBadRequestError: {
+            value: {
+              message: 'At least one of nickname, gender, age is required.',
+              error: 'Bad Request',
+            },
+            description: '적어도 하나의 값이 요구됨',
+          },
+          UpdateUserInfoRequestBodyBadRequestError2: {
+            value: {
+              message: [
+                'email must be an email',
+                'nickname must be a string',
+                'age must be a number conforming to the specified constraints',
+                'gender must be a string',
+              ],
+              error: 'Bad Request',
+            },
+            description: '유효하지 않은 요청 바디',
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    content: {
+      'application/json': {
+        example: {
+          message: 'At least one of nickname, gender, age is required.',
+          error: 'Bad request',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+    type: UnauthorizedError,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+  })
   @HttpCode(HttpStatus.OK)
   async updateUser(
     @Request() req,
