@@ -44,7 +44,7 @@ export class UserService {
       const emailVerification =
         await this.authRepository.findEmailVerificationByEmail(userInfo.email);
       if (!emailVerification || !emailVerification.is_verified) {
-        throw new UnauthorizedException('Invalid email verification');
+        throw new BadRequestException('Invalid email verification');
       }
     }
 

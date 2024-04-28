@@ -108,18 +108,13 @@ export class UserController {
             },
             description: '이메일과 매칭되는 유저가 이미 존재함',
           },
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized',
-    content: {
-      'application/json': {
-        example: {
-          message: 'Invalid email verification',
-          error: 'Unauthorized',
+          CreateUserInfoRequestBodyBadRequestError4: {
+            value: {
+              message: 'Invalid email verification',
+              error: 'Bad Request',
+            },
+            description: '올바르지 않은 이메일 검증',
+          },
         },
       },
     },
