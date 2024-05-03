@@ -10,6 +10,7 @@ import {
   HttpStatus,
   UseGuards,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -196,7 +197,14 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async updateUser(
     @Request() req,
-    @Body() updateUserInfoDto: UpdateUserInfoRequestDto,
+    @Body(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    )
+    updateUserInfoDto: UpdateUserInfoRequestDto,
   ) {
     const id = req.user.id;
     return await this.userService.update(id, updateUserInfoDto);
