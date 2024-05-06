@@ -14,23 +14,11 @@ export const calculateScoreAndCorrectWords = (data: any) => {
       ).toFixed(1),
     ) *
       100 +
-    (correctCount === expected_count
-      ? bonusForSameNumberBetweenGuessAndCorrectNumbers(
-          total_words,
-          correctCount,
-        )
-      : 0);
+    //NOTE 예측 숫자와 실제 맞춘 숫자가 동일한 경우, 많이 맞춘 경우에 차등을 두기 위한 보너스 점수
+    (correctCount === expected_count ? 0.3 * correctCount : 0);
 
   return {
     score,
     correct_words: correctWords,
   };
-};
-
-//NOTE 예측 숫자와 실제 맞춘 숫자가 동일한 경우, 많이 맞춘 경우에 차등을 두기 위한 보너스 점수
-const bonusForSameNumberBetweenGuessAndCorrectNumbers = (
-  wordsTotal: number,
-  correctNumber: number,
-) => {
-  return 0.3 * wordsTotal * correctNumber;
 };
