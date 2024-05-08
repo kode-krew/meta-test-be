@@ -48,7 +48,7 @@ export class Item {
   id: string;
 
   @ApiProperty({
-    example: 'Test#beginner#2024-03-30T01:44:00.232Z',
+    example: 'Test_beginner_2024-03-30T01:44:00.232Z',
     description: 'The SortKey',
   })
   sort_key: string;
