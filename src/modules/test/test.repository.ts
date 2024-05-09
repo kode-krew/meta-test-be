@@ -13,7 +13,6 @@ export class TestRepository {
 
   async createTest(data: any): Promise<any> {
     let id = data.id;
-
     if (!id) {
       id = uuidv4();
     }
@@ -24,7 +23,7 @@ export class TestRepository {
     const level = data.level;
     const item = {
       PK: id,
-      SK: `Test#${level}#${createdAt}`,
+      SK: `Test_${level}_${createdAt}`,
       ...data,
       ...testResult,
       category,
