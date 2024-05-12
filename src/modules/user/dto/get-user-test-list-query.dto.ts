@@ -42,5 +42,5 @@ export class GetUserTestListQueryDto {
       'eyJJZCI6IjIwNDA3YTRjLTJkNzktNGRkOC1iZDE3LTkyNzFhMzY3ZTk2YyIsIlNvcnRLZXkiOiJUZXN0IzIwMjQtMDMtMzBUMDE6NDQ6MTYuMDQ3WiJ9',
     description: 'Base64 encoded startKey',
   })
-  startkey?: string;
+  startKey?: string;
 }
