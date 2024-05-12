@@ -246,7 +246,7 @@ export class UserController {
   }
 
   @Get('/test/:id')
-  @ApiOperation({ summary: '유저 테스트 정보 조회', description: '' })
+  @ApiOperation({ summary: '유저 테스트 세부 정보 조회', description: '' })
   @ApiResponse({
     status: 200,
     description: 'OK',

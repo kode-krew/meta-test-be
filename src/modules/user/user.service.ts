@@ -118,7 +118,7 @@ async update(id: string, userInfo: UpdateUserInfoRequestDto): Promise<Omit<User,
     const limit = query.limit;
     const order = query.order;
     const level = query.level;
-    const encodedStartKey = query.startkey;
+    const encodedStartKey = query.startKey;
     let startKey: any;
     if (encodedStartKey) {
       const decodedString = Buffer.from(encodedStartKey, 'base64').toString(
