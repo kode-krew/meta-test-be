@@ -114,7 +114,7 @@ export class UserRepository {
     limit: number,
     order: string,
     level: string,
-    startKey?: any,
+    startKey?: string,
   ): Promise<any> {
     const sortKeyPrefix = level === 'all' ? 'Test_' : `Test_${level}_`;
     const scanIndexForward = order === 'asc';
