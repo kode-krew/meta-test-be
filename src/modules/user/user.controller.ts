@@ -210,9 +210,9 @@ export class UserController {
     return await this.userService.update(id, updateUserInfoDto);
   }
 
-  @Get('/test/:id')
+  @Get('/test')
   @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
+  @ApiBearerAuth() 
   @ApiOperation({ summary: '유저 테스트 리스트 정보 조회', description: '' })
   @ApiResponse({
     status: 200,
@@ -245,7 +245,7 @@ export class UserController {
     return await this.userService.getUserTestList(id, query);
   }
 
-  @Get('/test/detail/:id')
+  @Get('/test/:id')
   @ApiOperation({ summary: '유저 테스트 세부 정보 조회', description: '' })
   @ApiResponse({
     status: 200,
