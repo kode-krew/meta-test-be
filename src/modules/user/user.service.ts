@@ -61,10 +61,11 @@ export class UserService {
       userInfo['nickname'] = nickName;
     }
 
-    const item = await this.usersRepository.create({ ...userInfo, userType });
+    const item = await this.usersRepository.create(userInfo);
 
     const responseItem = {
       id: item.PK,
+      userType: userType, // Add this line
       ...item,
     };
     delete responseItem.PK;
@@ -119,7 +120,7 @@ async update(id: string, userInfo: UpdateUserInfoRequestDto): Promise<Omit<User,
     const order = query.order;
     const level = query.level;
     const encodedStartKey = query.startKey;
-    let startKey: any;
+    let startKey: string;
     if (encodedStartKey) {
       const decodedString = Buffer.from(encodedStartKey, 'base64').toString(
         'utf-8',

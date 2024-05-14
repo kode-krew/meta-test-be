@@ -4,16 +4,20 @@ import { DynamoDBDocument, QueryCommandOutput, GetCommandOutput, UpdateCommandOu
 import * as bcrypt from 'bcrypt';
 import { DatabaseError } from 'src/core/errors/database-error';
 import { UserType } from 'src/types/userType';
+import { User } from './entities/user.entity';
 
 interface UserInfo {
   id?: string;
   email: string;
   password: string;
-  [key: string]: string;
+  PK?: string;
+  SK?: string;
 }
 
 interface UserTest {
   [key: string]: string;
+  PK?: string;
+  SK?: string;
 }
 
 @Injectable()
@@ -88,7 +92,7 @@ export class UserRepository {
     }
   }
 
-  async update(id: string, userInfo: Partial<UserInfo>): Promise<UserInfo | null> {
+  async update(id: string, userInfo: Partial<UserInfo>): Promise<User | null> {
     let updateExpression = 'set';
     const ExpressionAttributeNames: { [key: string]: string } = {};
     const ExpressionAttributeValues: { [key: string]: unknown } = {};
@@ -112,7 +116,7 @@ export class UserRepository {
         ReturnValues: 'ALL_NEW', // return updated all data
       });
 
-      return result.Attributes as UserInfo | null;
+      return result.Attributes as User | null;
     } catch (e) {
       throw new DatabaseError();
     }
