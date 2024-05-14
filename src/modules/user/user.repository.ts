@@ -1,9 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable, Inject } from '@nestjs/common';
-import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocument, QueryCommandOutput, GetCommandOutput, UpdateCommandOutput, PutCommandOutput } from '@aws-sdk/lib-dynamodb';
 import * as bcrypt from 'bcrypt';
 import { DatabaseError } from 'src/core/errors/database-error';
 import { UserType } from 'src/types/userType';
+
+interface UserInfo {
+  id?: string;
+  email: string;
+  password: string;
+  [key: string]: string;
+}
+
+interface UserTest {
+  [key: string]: string;
+}
 
 @Injectable()
 export class UserRepository {
@@ -12,17 +23,16 @@ export class UserRepository {
     this.tableName = process.env.AWS_DYNAMODB_TABLE_NAME;
   }
 
-  async findOneById(id: string): Promise<any> {
+  async findOneById(id: string): Promise<UserInfo | null> {
     try {
-      const result = await this.dynamoDb.get({
+      const result: GetCommandOutput = await this.dynamoDb.get({
         TableName: this.tableName,
         Key: {
           PK: id,
           SK: `UserInfo#${id}`,
         },
       });
-      const { Item, ...$metadata } = result;
-      return Item;
+      return result.Item as UserInfo | null;
     } catch (e) {
       throw new DatabaseError();
     }
@@ -31,9 +41,9 @@ export class UserRepository {
   async findOneByEmailAndUserType(
     email: string,
     userType: UserType,
-  ): Promise<any> {
+  ): Promise<UserInfo | null> {
     try {
-      const result = await this.dynamoDb.query({
+      const result: QueryCommandOutput = await this.dynamoDb.query({
         TableName: this.tableName,
         IndexName: 'email-userType-index',
         KeyConditionExpression: 'email = :email AND userType = :userType',
@@ -43,13 +53,13 @@ export class UserRepository {
         },
       });
 
-      return result.Items ? result.Items[0] : null;
+      return result.Items ? (result.Items[0] as UserInfo) : null;
     } catch (e) {
       throw new DatabaseError();
     }
   }
 
-  async create(userInfo: any): Promise<any> {
+  async create(userInfo: UserInfo): Promise<UserInfo> {
     let id = userInfo.id;
     if (!id) {
       id = uuidv4();
@@ -78,11 +88,10 @@ export class UserRepository {
     }
   }
 
-  async update(id: string, userInfo: any): Promise<any> {
-    // Building the update expression
+  async update(id: string, userInfo: Partial<UserInfo>): Promise<UserInfo | null> {
     let updateExpression = 'set';
-    const ExpressionAttributeNames = {};
-    const ExpressionAttributeValues = {};
+    const ExpressionAttributeNames: { [key: string]: string } = {};
+    const ExpressionAttributeValues: { [key: string]: unknown } = {};
     for (const property in userInfo) {
       updateExpression += ` #${property} = :${property},`;
       ExpressionAttributeNames[`#${property}`] = property;
@@ -91,7 +100,7 @@ export class UserRepository {
     updateExpression = updateExpression.slice(0, -1); // Remove the trailing comma
 
     try {
-      const result = await this.dynamoDb.update({
+      const result: UpdateCommandOutput = await this.dynamoDb.update({
         TableName: this.tableName,
         Key: {
           PK: id,
@@ -103,7 +112,7 @@ export class UserRepository {
         ReturnValues: 'ALL_NEW', // return updated all data
       });
 
-      return result.Attributes;
+      return result.Attributes as UserInfo | null;
     } catch (e) {
       throw new DatabaseError();
     }
@@ -115,11 +124,19 @@ export class UserRepository {
     order: string,
     level: string,
     startKey?: string,
-  ): Promise<any> {
+  ): Promise<{ items: UserTest[], count: number, lastEvaluatedKey: string | null }> {
     const sortKeyPrefix = level === 'all' ? 'Test_' : `Test_${level}_`;
     const scanIndexForward = order === 'asc';
 
-    const params = {
+    const params: {
+      TableName: string;
+      KeyConditionExpression: string;
+      ExpressionAttributeNames: { [key: string]: string };
+      ExpressionAttributeValues: { [key: string]: string };
+      Limit: number;
+      ScanIndexForward: boolean;
+      ExclusiveStartKey?: { [key: string]: unknown };
+    } = {
       TableName: this.tableName,
       KeyConditionExpression: '#pk = :id and begins_with(#sk, :sortKeyPrefix)',
       ExpressionAttributeNames: {
@@ -131,12 +148,15 @@ export class UserRepository {
         ':sortKeyPrefix': sortKeyPrefix,
       },
       Limit: limit, // pagination limit
-      ExclusiveStartKey: startKey, // previous last key
       ScanIndexForward: scanIndexForward,
     };
 
+    if (startKey) {
+      params.ExclusiveStartKey = JSON.parse(Buffer.from(startKey, 'base64').toString('utf-8'));
+    }
+
     try {
-      const result = await this.dynamoDb.query(params);
+      const result: QueryCommandOutput = await this.dynamoDb.query(params);
 
       const transformedItems = result.Items.map((item) => {
         const { PK, SK, ...rest } = item;
@@ -150,9 +170,7 @@ export class UserRepository {
         items: transformedItems,
         count: result.Count,
         lastEvaluatedKey: result.LastEvaluatedKey
-          ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
-              'base64',
-            )
+          ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString('base64')
           : null,
       };
     } catch (error) {
@@ -160,17 +178,16 @@ export class UserRepository {
     }
   }
 
-  async findUserTest(id: string, sort_key: string): Promise<any> {
+  async findUserTest(id: string, sort_key: string): Promise<UserTest | null> {
     try {
-      const result = await this.dynamoDb.get({
+      const result: GetCommandOutput = await this.dynamoDb.get({
         TableName: this.tableName,
         Key: {
           PK: id,
           SK: sort_key,
         },
       });
-      const { Item, ...$metadata } = result;
-      return Item;
+      return result.Item as UserTest | null;
     } catch (e) {
       throw new DatabaseError();
     }
