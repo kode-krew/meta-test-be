@@ -138,7 +138,7 @@ export class UserController {
   @Patch()
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
-  @ApiOperation({ summary: '유저 정보 수정', description: '' })
+  @ApiOperation({ summary: '유저 정보 수정', description: ' ' })
   @ApiResponse({
     status: 200,
     description: 'OK',
@@ -212,7 +212,7 @@ export class UserController {
 
   @Get('/test')
   @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth() 
+  @ApiBearerAuth()
   @ApiOperation({ summary: '유저 테스트 리스트 정보 조회', description: '' })
   @ApiResponse({
     status: 200,
