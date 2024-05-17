@@ -1,9 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
-import { Injectable, Inject } from '@nestjs/common';
-import { DynamoDBDocument, QueryCommandOutput, GetCommandOutput, UpdateCommandOutput, PutCommandOutput } from '@aws-sdk/lib-dynamodb';
+import { GetCommandOutput, QueryCommandOutput, UpdateCommandOutput } from '@aws-sdk/lib-dynamodb';
+import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { DatabaseError } from 'src/core/errors/database-error';
 import { UserType } from 'src/types/userType';
+import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
 
 interface UserInfo {
@@ -23,7 +23,7 @@ interface UserTest {
 @Injectable()
 export class UserRepository {
   private tableName: string;
-  constructor(@Inject('DYNAMODB') private dynamoDb: DynamoDBDocument) {
+  constructor(@Inject('DYNAMODB') private dynamoDb) {
     this.tableName = process.env.AWS_DYNAMODB_TABLE_NAME;
   }
 
@@ -128,19 +128,11 @@ export class UserRepository {
     order: string,
     level: string,
     startKey?: string,
-  ): Promise<{ items: UserTest[], count: number, lastEvaluatedKey: string | null }> {
+  ): Promise<any> {
     const sortKeyPrefix = level === 'all' ? 'Test_' : `Test_${level}_`;
     const scanIndexForward = order === 'asc';
 
-    const params: {
-      TableName: string;
-      KeyConditionExpression: string;
-      ExpressionAttributeNames: { [key: string]: string };
-      ExpressionAttributeValues: { [key: string]: string };
-      Limit: number;
-      ScanIndexForward: boolean;
-      ExclusiveStartKey?: { [key: string]: unknown };
-    } = {
+    const params = {
       TableName: this.tableName,
       KeyConditionExpression: '#pk = :id and begins_with(#sk, :sortKeyPrefix)',
       ExpressionAttributeNames: {
@@ -152,15 +144,12 @@ export class UserRepository {
         ':sortKeyPrefix': sortKeyPrefix,
       },
       Limit: limit, // pagination limit
+      ExclusiveStartKey: startKey, // previous last key
       ScanIndexForward: scanIndexForward,
     };
 
-    if (startKey) {
-      params.ExclusiveStartKey = JSON.parse(Buffer.from(startKey, 'base64').toString('utf-8'));
-    }
-
     try {
-      const result: QueryCommandOutput = await this.dynamoDb.query(params);
+      const result = await this.dynamoDb.query(params);
 
       const transformedItems = result.Items.map((item) => {
         const { PK, SK, ...rest } = item;
@@ -174,7 +163,9 @@ export class UserRepository {
         items: transformedItems,
         count: result.Count,
         lastEvaluatedKey: result.LastEvaluatedKey
-          ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString('base64')
+          ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
+              'base64',
+            )
           : null,
       };
     } catch (error) {

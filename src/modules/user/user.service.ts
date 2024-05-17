@@ -135,7 +135,6 @@ async update(id: string, userInfo: UpdateUserInfoRequestDto): Promise<Omit<User,
       level,
       startKey,
     );
-
     return userTestList;
   }
 
