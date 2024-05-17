@@ -7,34 +7,47 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 빌드
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Get Github Actions IP
-        id: ip
-        uses: haythem/public-ip@v1.3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
-      - name: Add Github Actions IP to Security group
+      - name: Setup SSH key
         run: |
-          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-
-      - name: create pem key
-        run: |
-          echo "$SSH_KEY" >> key.pem
+          echo "$SSH_KEY" > key.pem
           chmod 600 key.pem
-          ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "bash git-action.sh"
+          # Debugging: Verify the key file is correctly created and permissions are set
+          echo "SSH key file content:"
+          cat key.pem
+          echo "SSH key file permissions:"
+          ls -l key.pem
+
+      - name: Connect and run script on remote host
+        run: |
+          ssh -v -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "bash git-action.sh"
         env:
-          USER: ${{secrets.USER}}
-          HOST: ${{secrets.HOST}}
-          SSH_KEY: ${{secrets.SSH_KEY}}
+          USER: ${{ secrets.USER }}
+          HOST: ${{ secrets.HOST }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          AWS_DEFAULT_REGION: ap-northeast-2
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ACCESS_TOKEN_EXPIRATION: ${{ secrets.ACCESS_TOKEN_EXPIRATION }}
+          REFRESH_TOKEN_EXPIRATION: ${{ secrets.REFRESH_TOKEN_EXPIRATION }}
+          AWS_DYNAMODB_TABLE_NAME: ${{ secrets.AWS_DYNAMODB_TABLE_NAME }}
+          AWS_DYNAMODB_EMAIL_VERIFICATION_TABLE_NAME: ${{ secrets.AWS_DYNAMODB_EMAIL_VERIFICATION_TABLE_NAME }}
+          AWS_SES_EMAIL: ${{ secrets.AWS_SES_EMAIL }}
+          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          KAKAO_CALLBACK_URL: ${{ secrets.KAKAO_CALLBACK_URL }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
       - name: Remove Github Actions IP From Security Group
         run: |
