@@ -32,9 +32,25 @@ jobs:
           chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "bash git-action.sh"
         env:
-          USER: ${{secrets.USER}}
-          HOST: ${{secrets.HOST}}
-          SSH_KEY: ${{secrets.SSH_KEY}}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          USER: ${{ secrets.USER }}
+          HOST: ${{ secrets.HOST }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ACCESS_TOKEN_EXPIRATION: ${{ secrets.ACCESS_TOKEN_EXPIRATION }}
+          REFRESH_TOKEN_EXPIRATION: ${{ secrets.REFRESH_TOKEN_EXPIRATION }}
+          AWS_DYNAMODB_TABLE_NAME: ${{ secrets.AWS_DYNAMODB_TABLE_NAME }}
+          AWS_DYNAMODB_EMAIL_VERIFICATION_TABLE_NAME: ${{ secrets.AWS_DYNAMODB_EMAIL_VERIFICATION_TABLE_NAME }}
+          AWS_SES_EMAIL: ${{ secrets.AWS_SES_EMAIL }}
+          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          KAKAO_CALLBACK_URL: ${{ secrets.KAKAO_CALLBACK_URL }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        
+          
 
       - name: Remove Github Actions IP From Security Group
         run: |
