@@ -7,35 +7,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 빌드
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Get Github Actions IP
-        id: ip
-        uses: haythem/public-ip@v1.3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
-      - name: Add Github Actions IP to Security group
+      - name: Setup SSH key
         run: |
-          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-
-      - name: create pem key
-        run: |
-          echo "$SSH_KEY" >> key.pem
+          echo "$SSH_KEY" > key.pem
           chmod 600 key.pem
+          echo "SSH key file created and permissions set."
+          ls -la key.pem  # 키 파일이 제대로 생성되었는지 확인
+          cat key.pem  # 키 파일 내용 확인 (보안 상 민감하므로 실제로는 출력하지 않음)
+      
+      - name: Connect and run script on remote host
+        run: |
           ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "bash git-action.sh"
         env:
-          NODE_ENV: ${{ secrets.NODE_ENV }}
           USER: ${{ secrets.USER }}
           HOST: ${{ secrets.HOST }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
+          # 추가된 환경 변수들
+          AWS_DEFAULT_REGION: ap-northeast-2
+          AWS_REGION: ap-northeast-2
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ACCESS_TOKEN_EXPIRATION: ${{ secrets.ACCESS_TOKEN_EXPIRATION }}
           REFRESH_TOKEN_EXPIRATION: ${{ secrets.REFRESH_TOKEN_EXPIRATION }}
@@ -49,6 +47,7 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+
         
           
 
