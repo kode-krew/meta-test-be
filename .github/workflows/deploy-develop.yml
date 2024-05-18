@@ -7,29 +7,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 빌드
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Get Github Actions IP
-        id: ip
-        uses: haythem/public-ip@v1.3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Add Github Actions IP to Security group
+      - name: Build and push Docker image
         run: |
-          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+          docker build -t meta-test .
+          docker tag meta-test:latest ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
 
-      - name: create pem key
+      - name: SSH and deploy to EC2
         run: |
           echo "$SSH_KEY" >> key.pem
           chmod 600 key.pem
+          ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << 'EOF'
+            docker pull ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
+            docker stop meta-test-container || true
+            docker rm meta-test-container || true
           ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "bash ~/git-action.sh"
         env:
           USER: ${{ secrets.EC2_USER }}
