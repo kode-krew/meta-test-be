@@ -10,42 +10,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-            # 깃허브 액션 러너의 아이피를 얻어온다.
-      - name: Get Github action IP
-        id: ip
-        uses: haythem/public-ip@v1.2
-
-        
-      # AWS 설정
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          # 아이엠 키 설정
-           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
-           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
-           aws-region: ap-northeast-2
-      
-      # 깃허브 액션의 아이피를 인바운드 룰에 임시 등록
-      - name: Add Github Actions IP to Security group
-        run: |
-          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup SSH key
-        run: |
-          echo "$SSH_KEY" > key.pem
-          chmod 600 key.pem
-          # Debugging: Verify the key file is correctly created and permissions are set
-          echo "SSH key file content:"
-          cat key.pem
-          echo "SSH key file permissions:"
-          ls -l key.pem
-
-      - name: Connect and run script on remote host
-        run: |
-          ssh -v -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "bash git-action.sh"
+      - uses: actions/checkout@v2 
+      - name: Build & Deploy
         env:
           USER: ${{ secrets.USER }}
           HOST: ${{ secrets.HOST }}
@@ -69,6 +35,18 @@ jobs:
           GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
-      - name: Remove Github Actions IP From Security Group
         run: |
-          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+            # Now we have got the access of EC2 and we will start the deploy .
+            cd /home/ubuntu/<PROJECT_DIRECTORY> &&
+            git checkout dev &&
+            git fetch --all &&
+            git reset --hard origin/dev &&
+            git pull origin dev &&
+            sudo npm i &&
+            sudo npm run build &&
+            sudo pm2 stop ./dist/index.js &&
+            sudo pm2 start ./dist/index.js
+          '
+
