@@ -45,7 +45,7 @@ jobs:
 
       - name: SSH and deploy to EC2
         run: |
-          echo "$SSH_KEY" >> key.pem
+          echo "$SSH_KEY" > key.pem
           chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << 'EOF'
             docker pull ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
@@ -69,6 +69,7 @@ jobs:
               -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
               -e GOOGLE_CALLBACK_URL=https://www.meta-cognition.site/auth \
               -e GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} \
+              -p 8080:8080 \
               ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
             docker logs meta-test-container
           EOF
