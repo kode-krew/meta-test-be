@@ -10,6 +10,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Get Github Actions IP
+        id: ip
+        uses: haythem/public-ip@v1.3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Add Github Actions IP to Security group
+        run: |
+          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -36,7 +51,8 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
             docker stop meta-test-container || true
             docker rm meta-test-container || true
-          ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} "bash ~/git-action.sh"
+            docker run -d --name meta-test-container ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
+          EOF
         env:
           USER: ${{ secrets.EC2_USER }}
           HOST: ${{ secrets.EC2_HOST }}
