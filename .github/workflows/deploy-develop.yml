@@ -45,13 +45,33 @@ jobs:
 
       - name: SSH and deploy to EC2
         run: |
-          echo "$SSH_KEY" >> key.pem
+          echo "$SSH_KEY" > key.pem
           chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << 'EOF'
             docker pull ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
             docker stop meta-test-container || true
             docker rm meta-test-container || true
-            docker run -d --name meta-test-container ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
+            docker run -d --name meta-test-container \
+              -e NODE_ENV=production \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e ACCESS_TOKEN_EXPIRATION=1h \
+              -e REFRESH_TOKEN_EXPIRATION=3y \
+              -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY }} \
+              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+              -e REGION=ap-northeast-2 \
+              -e AWS_DYNAMODB_TABLE_NAME=Metacognition-Test \
+              -e AWS_DYNAMODB_EMAIL_VERIFICATION_TABLE_NAME=Dev-Metacognition-Email-Verification \
+              -e AWS_SES_EMAIL=noreply.kodekrew@gmail.com \
+              -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+              -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
+              -e KAKAO_CALLBACK_URL=https://www.meta-cognition.site/auth \
+              -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+              -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+              -e GOOGLE_CALLBACK_URL=https://www.meta-cognition.site/auth \
+              -e GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} \
+              -p 8080:8080 \
+              ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
+            docker logs meta-test-container
           EOF
         env:
           USER: ${{ secrets.EC2_USER }}
