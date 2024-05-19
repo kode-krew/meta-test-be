@@ -10,7 +10,7 @@ export class AuthRepository {
   private emailVerificationTableName: string;
 
   constructor(@Inject('DYNAMODB') private dynamoDb: DynamoDBDocument) {
-    this.tableName = process.env.AWS_DYNAMODB_TABLE_NAME;
+    this.tableName = 'Dev-Metacognition-Test';
     this.emailVerificationTableName =
       process.env.AWS_DYNAMODB_EMAIL_VERIFICATION_TABLE_NAME;
   }

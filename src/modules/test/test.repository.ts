@@ -8,7 +8,7 @@ import { DatabaseError } from 'src/core/errors/database-error';
 export class TestRepository {
   private tableName: string;
   constructor(@Inject('DYNAMODB') private dynamoDb: DynamoDBDocument) {
-    this.tableName = process.env.AWS_DYNAMODB_TABLE_NAME;
+    this.tableName = 'Dev-Metacognition-Test';
   }
 
   async createTest(data: any): Promise<any> {
