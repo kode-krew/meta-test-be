@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Upstream
         uses: actions/checkout@v2
         with:
-          repository: meta-test-be
+          repository: kode-krew/meta-test-be
           token: ${{ secrets.GITHUB_TOKEN }}
           path: upstream
 
