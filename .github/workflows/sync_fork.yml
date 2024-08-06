@@ -1,0 +1,62 @@
+name: Synchronize Fork with Upstream
+
+on:
+  schedule:
+    - cron: '*/1 * * * *' # 매 분마다 체크
+  workflow_dispatch: # 수동으로도 실행 가능하게 설정
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Fork
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          path: fork
+
+      - name: Add Upstream
+        run: |
+          cd fork
+          git remote add upstream https://github.com/kode-krew/meta-test-be.git
+          git fetch upstream
+          git checkout main
+          git merge upstream/main --no-commit --no-ff || true
+
+      - name: Check for Changes
+        id: changes
+        run: |
+          cd fork
+          if git diff --quiet; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
+
+      - name: Push changes to forked-repo
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          cd fork
+          git push origin main
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          cd fork
+          git checkout -b sync-upstream
+          git add -A
+          git commit -m 'Sync with upstream'
+          git push origin sync-upstream
+          gh pr create --title 'Sync with upstream' --body 'This PR syncs the fork with upstream repository' --base main --head sync-upstream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
