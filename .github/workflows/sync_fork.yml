@@ -28,7 +28,7 @@ jobs:
       - name: Sync with Upstream
         uses: dabreadman/sync-upstream-repo@v1.3.0
         with:
-          upstream_repo: 'https://github.com/kode-krew/meta-test-be'
+          upstream_repo: 'https://github.com/kode-krew/meta-test-be.git'
           upstream_branch: 'main'
           downstream_branch: 'main'
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -43,17 +43,17 @@ jobs:
         id: changes
         run: |
           cd fork
-          git fetch origin main
-          if git diff --quiet origin/main; then
-            echo "changes=false" >> $GITHUB_OUTPUT
-          else
+          if git fetch upstream main; then
             echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Push changes to forked-repo
         if: steps.changes.outputs.changes == 'true'
         run: |
           cd fork
+          git merge upstream/main --no-commit --no-ff || true
           git push origin main
 
       - name: Create Pull Request
