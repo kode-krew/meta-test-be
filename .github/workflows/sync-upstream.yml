@@ -1,4 +1,4 @@
-name: Sync Upstream
+name: Sync with Upstream
 
 on:
   schedule:
@@ -12,36 +12,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Upstream
-        uses: actions/checkout@v2
-        with:
-          repository: kode-krew/meta-test-be
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: upstream
-
       - name: Checkout Fork
         uses: actions/checkout@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: fork
 
-      - name: Sync Upstream to Fork
+      - name: Add Upstream
         run: |
           cd fork
           git remote add upstream https://github.com/kode-krew/meta-test-be.git
           git fetch upstream
           git checkout main
           git merge upstream/main --no-commit --no-ff
-
-      - name: Configure git
-        run: |
-          cd fork
-          git config user.name "minchodang"
-          git config user.email "minchodang@users.noreply.github.com"
+          git push origin main
 
       - name: Create Pull Request
-        run: |
-          cd fork
-          gh pr create --title 'Sync with upstream' --body 'This PR syncs the fork with upstream repository' --base main --head sync-upstream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Sync with upstream'
+          branch: sync-upstream
+          base: main
+          title: 'Sync with upstream'
+          body: 'This PR syncs the fork with upstream repository'
