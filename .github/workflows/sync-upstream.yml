@@ -28,7 +28,7 @@ jobs:
       - name: Sync Upstream to Fork
         run: |
           cd fork
-          git remote add upstream ../upstream
+          git remote add upstream https://github.com/kode-krew/meta-test-be.git
           git fetch upstream
           git checkout main
           git merge upstream/main --no-commit --no-ff
