@@ -1,0 +1,44 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 * * * *' # 매 시간마다 체크
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Upstream
+        uses: actions/checkout@v2
+        with:
+          repository: meta-test-be
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: upstream
+
+      - name: Checkout Fork
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: fork
+
+      - name: Sync Upstream to Fork
+        run: |
+          cd fork
+          git remote add upstream ../upstream
+          git fetch upstream
+          git checkout main
+          git merge upstream/main --no-commit --no-ff
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Sync with upstream'
+          branch: sync-upstream
+          base: main
+          title: 'Sync with upstream'
+          body: 'This PR syncs the fork with upstream repository'
