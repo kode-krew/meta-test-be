@@ -1,8 +1,8 @@
-name: Synchronize Fork with Upstream
+name: Sync Upstream and Create PR
 
 on:
   schedule:
-    - cron: '*/1 * * * *' # 매 분마다 체크
+    - cron: '0 18 * * *' # 매일 18시에 실행
   workflow_dispatch: # 수동으로도 실행 가능하게 설정
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout Fork
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
         with:
           repository: ${{ github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -21,42 +21,49 @@ jobs:
       - name: Install GitHub CLI
         run: |
           curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
           sudo apt-get update
           sudo apt-get install gh
 
-      - name: Add Upstream and Check for Changes
-        id: check_changes
+      - name: Sync with Upstream
+        uses: dabreadman/sync-upstream-repo@v1.3.0
+        with:
+          upstream_repo: 'https://github.com/kode-krew/meta-test-be'
+          upstream_branch: 'main'
+          downstream_branch: 'main'
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
         run: |
           cd fork
-          git remote add upstream https://github.com/kode-krew/meta-test-be.git
-          git fetch upstream
-          git checkout main
+          git config user.name "minchodang"
+          git config user.email "minsu910725@gmail.com"
 
-          # upstream/main과 origin/main의 차이를 확인
-          if git diff --quiet origin/main upstream/main; then
+      - name: Check for Changes
+        id: changes
+        run: |
+          cd fork
+          git fetch origin main
+          if git diff --quiet origin/main; then
             echo "changes=false" >> $GITHUB_OUTPUT
           else
             echo "changes=true" >> $GITHUB_OUTPUT
-            # 변경사항이 있으면 병합 시도
-            git merge upstream/main --no-commit --no-ff || true
           fi
 
       - name: Push changes to forked-repo
-        if: steps.check_changes.outputs.changes == 'true'
+        if: steps.changes.outputs.changes == 'true'
         run: |
           cd fork
           git push origin main
 
       - name: Create Pull Request
-        if: steps.check_changes.outputs.changes == 'true'
+        if: steps.changes.outputs.changes == 'true'
         run: |
           cd fork
-          git checkout -b sync-upstream
+          git checkout -b sync-upstream-$(date +%Y%m%d%H%M%S)
           git add -A
           git commit -m 'Sync with upstream'
-          git push origin sync-upstream
-          gh pr create --title 'Sync with upstream' --body 'This PR syncs the fork with upstream repository' --base main --head sync-upstream
+          git push origin sync-upstream-$(date +%Y%m%d%H%M%S)
+          gh pr create --title 'Sync with upstream' --body 'This PR syncs the fork with upstream repository' --base main --head sync-upstream-$(date +%Y%m%d%H%M%S)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
