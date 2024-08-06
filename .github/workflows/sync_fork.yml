@@ -26,32 +26,31 @@ jobs:
           sudo apt-get update
           sudo apt-get install gh
 
-      - name: Add Upstream
+      - name: Add Upstream and Check for Changes
+        id: check_changes
         run: |
           cd fork
           git remote add upstream https://github.com/kode-krew/meta-test-be.git
           git fetch upstream
           git checkout main
-          git merge upstream/main --no-commit --no-ff || true
 
-      - name: Check for Changes
-        id: changes
-        run: |
-          cd fork
-          if git diff --quiet; then
+          # upstream/main과 origin/main의 차이를 확인
+          if git diff --quiet origin/main upstream/main; then
             echo "changes=false" >> $GITHUB_OUTPUT
           else
             echo "changes=true" >> $GITHUB_OUTPUT
+            # 변경사항이 있으면 병합 시도
+            git merge upstream/main --no-commit --no-ff || true
           fi
 
       - name: Push changes to forked-repo
-        if: steps.changes.outputs.changes == 'true'
+        if: steps.check_changes.outputs.changes == 'true'
         run: |
           cd fork
           git push origin main
 
       - name: Create Pull Request
-        if: steps.changes.outputs.changes == 'true'
+        if: steps.check_changes.outputs.changes == 'true'
         run: |
           cd fork
           git checkout -b sync-upstream
