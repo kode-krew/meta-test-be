@@ -2,7 +2,7 @@ name: Sync Upstream and Create PR
 
 on:
   schedule:
-    - cron: '0 18 * * *' # 매일 18시에 실행
+    - cron: '*/1 * * * *' # 매 분마다 실행
   workflow_dispatch: # 수동으로도 실행 가능하게 설정
 
 jobs:
@@ -49,10 +49,16 @@ jobs:
         run: |
           cd fork
           git fetch upstream main
-          git diff --exit-code upstream/main || echo "changes=true" >> $GITHUB_OUTPUT
+          git diff --exit-code upstream/main -- . ':(exclude).github/workflows/sync-upstream.yml' || echo "changes=true" >> $GITHUB_OUTPUT
           if [ ! -f $GITHUB_OUTPUT ]; then
             echo "changes=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Pull latest changes from forked-repo
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          cd fork
+          git pull origin main --rebase
 
       - name: Push changes to forked-repo
         if: steps.changes.outputs.changes == 'true'
