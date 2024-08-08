@@ -39,13 +39,18 @@ jobs:
           git config user.name "minchodang"
           git config user.email "minsu910725@gmail.com"
 
+      - name: Add Upstream Remote
+        run: |
+          cd fork
+          git remote add upstream https://github.com/kode-krew/meta-test-be.git
+
       - name: Check for Changes
         id: changes
         run: |
           cd fork
-          if git fetch upstream main; then
-            echo "changes=true" >> $GITHUB_OUTPUT
-          else
+          git fetch upstream main
+          git diff --exit-code upstream/main || echo "changes=true" >> $GITHUB_OUTPUT
+          if [ ! -f $GITHUB_OUTPUT ]; then
             echo "changes=false" >> $GITHUB_OUTPUT
           fi
 
