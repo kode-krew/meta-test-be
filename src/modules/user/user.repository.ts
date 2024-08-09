@@ -24,7 +24,7 @@ interface UserTest {
 export class UserRepository {
   private tableName: string;
   constructor(@Inject('DYNAMODB') private dynamoDb) {
-    this.tableName = 'Dev-Metacognition-Test';
+    this.tableName = process.env.AWS_DYNAMODB_TABLE_NAME;
   }
 
   async findOneById(id: string): Promise<UserInfo | null> {
