@@ -16,11 +16,6 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     refreshToken: string,
     profile: Profile,
   ): Promise<SocialLoginRequestDto> {
-    console.log(
-      'kakao login info',
-      profile._json.kakao_account.email,
-      String(profile.id),
-    );
 
     return {
       email: profile._json.kakao_account.email,
