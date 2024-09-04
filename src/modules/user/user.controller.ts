@@ -235,7 +235,7 @@ export class UserController {
   })
   @HttpCode(HttpStatus.OK)
   async geteUserTestList(
-    @Request() req: any,
+    @Request() req,
     @Query() query: GetUserTestListQueryDto,
   ) {
     const id = req.user.id;
