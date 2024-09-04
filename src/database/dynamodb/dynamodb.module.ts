@@ -1,24 +1,18 @@
-import { Module, Global } from "@nestjs/common";
-import { DynamoDB } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
+import { Module, Global } from '@nestjs/common';
+import { createClient } from '@supabase/supabase-js';
 
 @Global()
 @Module({
   providers: [
     {
-      provide: "DYNAMODB",
+      provide: 'SUPABASE',
       useFactory: () => {
-        const client = new DynamoDB({
-          credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-          },
-          region: process.env.REGION,
-        });
-        return DynamoDBDocument.from(client);
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_KEY;
+        return createClient(supabaseUrl, supabaseKey);
       },
     },
   ],
-  exports: ["DYNAMODB"],
+  exports: ['SUPABASE'],
 })
-export class DynamoDBModule {}
+export class SupabaseModule {}
