@@ -3,10 +3,9 @@ import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
 import { UserController } from './user.controller';
 import { AuthModule } from '../auth/auth.module';
-import { SupabaseModule } from 'src/database/supabase/supabase.module';
-
+import { DynamoDBModule } from '../../database/dynamodb/dynamodb.module';
 @Module({
-  imports: [SupabaseModule, AuthModule],
+  imports: [DynamoDBModule, AuthModule],
   controllers: [UserController],
   providers: [UserService, UserRepository],
   exports: [UserService, UserRepository],
