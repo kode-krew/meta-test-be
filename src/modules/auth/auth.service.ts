@@ -33,6 +33,7 @@ export class AuthService {
     userType: UserType,
   ): Promise<any> {
     //NOTE: email & userType까지 동일해야 동일 유저
+    console.log(email, password, userType, 'validateUser');
     const user = await this.authRepository.findOneByEmailAndUserType(
       email,
       userType,
@@ -97,9 +98,11 @@ export class AuthService {
     userType: UserType,
   ): Promise<CreateTokenResponseDto> {
     const { email, password } = socialLoginDto;
+    console.log(email, password, userType, 'socialLoginDto');
 
     const user = await this.validateUser(email, password, userType);
 
+    console.log(user, 'user');
     if (user) {
       //1.기존 가입 유저라면, token create
       return await this.createToken(user);
@@ -110,7 +113,7 @@ export class AuthService {
       { email, password },
       userType,
     );
-
+    console.log(newUser, 'newUser');
     return await this.createToken(newUser);
   }
 
