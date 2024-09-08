@@ -10,7 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -41,6 +40,35 @@ jobs:
           echo "$SSH_KEY" > key.pem
           chmod 600 key.pem
           ssh -i key.pem -o StrictHostKeyChecking=no ${USER}@${HOST} << 'EOF'
+            # Docker가 설치되어 있는지 확인
+            if ! command -v docker &> /dev/null
+            then
+              echo "Docker가 설치되어 있지 않습니다. Docker를 설치합니다."
+
+              # 기존 패키지 목록 업데이트 및 필수 패키지 설치
+              sudo apt update
+              sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+
+              # Docker 공식 GPG 키 추가
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+              # Docker 리포지토리 추가
+              echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+              # 패키지 목록 업데이트 및 Docker 설치
+              sudo apt update
+              sudo apt install docker-ce -y
+
+            # Docker 권한 설정 (옵션)
+            sudo usermod -aG docker ${USER}
+
+            # Docker 데몬 시작 및 부팅 시 자동 시작 설정
+            sudo systemctl enable docker
+              sudo systemctl start docker
+            else
+              echo "Docker가 이미 설치되어 있습니다."
+            fi
+
             docker pull ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
             docker stop meta-test-container || true
             docker rm meta-test-container || true
@@ -70,4 +98,3 @@ jobs:
           USER: ${{ secrets.EC2_USER }}
           HOST: ${{ secrets.EC2_HOST }}
           SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-
