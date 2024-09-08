@@ -69,10 +69,10 @@ jobs:
               echo "Docker가 이미 설치되어 있습니다."
             fi
 
-            docker pull ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
-            docker stop meta-test-container || true
-            docker rm meta-test-container || true
-            docker run -d --name meta-test-container \
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
+            sudo docker stop meta-test-container || true
+            sudo docker rm meta-test-container || true
+            sudo docker run -d --name meta-test-container \
               -e NODE_ENV=production \
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
               -e ACCESS_TOKEN_EXPIRATION=1h \
@@ -92,7 +92,7 @@ jobs:
               -e GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }} \
               -p 8080:8080 \
               ${{ secrets.DOCKER_USERNAME }}/meta-test:latest
-            docker logs meta-test-container
+            sudo docker logs meta-test-container
           EOF
         env:
           USER: ${{ secrets.EC2_USER }}
