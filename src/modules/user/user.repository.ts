@@ -1,4 +1,8 @@
-import { GetCommandOutput, QueryCommandOutput, UpdateCommandOutput } from '@aws-sdk/lib-dynamodb';
+import {
+  GetCommandOutput,
+  QueryCommandOutput,
+  UpdateCommandOutput,
+} from '@aws-sdk/lib-dynamodb';
 import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { DatabaseError } from 'src/core/errors/database-error';
@@ -63,7 +67,7 @@ export class UserRepository {
     }
   }
 
-  async create(userInfo: UserInfo): Promise<UserInfo> {
+  async create(userInfo: UserInfo, userType: UserType): Promise<UserInfo> {
     let id = userInfo.id;
     if (!id) {
       id = uuidv4();
@@ -75,6 +79,7 @@ export class UserRepository {
       PK: id,
       SK: `UserInfo#${id}`,
       ...userInfo,
+      userType,
       password: hashedPassword,
       createdAt,
     };

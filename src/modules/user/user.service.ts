@@ -1,6 +1,8 @@
 import {
   BadRequestException,
-  ConflictException, Injectable, NotFoundException
+  ConflictException,
+  Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { generateRandomNickName } from 'src/core/utils/generate-random-nickname.util';
@@ -39,6 +41,7 @@ export class UserService {
     userInfo: CreateUserInfoRequestDto,
     userType: UserType,
   ): Promise<CreateUserInfoResponseDto> {
+    console.log(userInfo, userType, 'userInfo, userType');
     if (userType === UserType.NORMAL) {
       const emailVerification =
         await this.authRepository.findEmailVerificationByEmail(userInfo.email);
@@ -61,11 +64,11 @@ export class UserService {
       userInfo['nickname'] = nickName;
     }
 
-    const item = await this.usersRepository.create(userInfo);
+    const item = await this.usersRepository.create(userInfo, userType);
 
     const responseItem = {
       id: item.PK,
-      userType: userType, // Add this line
+      userType,
       ...item,
     };
     delete responseItem.PK;
@@ -74,46 +77,49 @@ export class UserService {
     return responseItem;
   }
 
-async hashPassword(password: string): Promise<string> {
-  const saltOrRounds = 10;
-  const hashedPassword = await bcrypt.hash(password, saltOrRounds);
-  return hashedPassword;
-}
-
-async update(id: string, userInfo: UpdateUserInfoRequestDto): Promise<Omit<User, 'password'>> {
-  const { email, password, nickname } = userInfo;
-
-  if (!email && !password && !nickname) {
-    throw new BadRequestException(
-      'At least one of email, password, or nickname is required.',
-    );
+  async hashPassword(password: string): Promise<string> {
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltOrRounds);
+    return hashedPassword;
   }
 
-  const updateData: Partial<User> = {};
+  async update(
+    id: string,
+    userInfo: UpdateUserInfoRequestDto,
+  ): Promise<Omit<User, 'password'>> {
+    const { email, password, nickname } = userInfo;
 
-  if (email) {
-    updateData.email = email;
+    if (!email && !password && !nickname) {
+      throw new BadRequestException(
+        'At least one of email, password, or nickname is required.',
+      );
+    }
+
+    const updateData: Partial<User> = {};
+
+    if (email) {
+      updateData.email = email;
+    }
+
+    if (password) {
+      const hashedPassword = await this.hashPassword(password);
+      updateData.password = hashedPassword;
+    }
+
+    if (nickname) {
+      updateData.nickname = nickname;
+    }
+
+    const user = await this.usersRepository.update(id, updateData);
+    const responseItem: Omit<User, 'password'> = {
+      id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      // 다른 필드들...
+    };
+
+    return responseItem;
   }
-
-  if (password) {
-    const hashedPassword = await this.hashPassword(password);
-    updateData.password = hashedPassword;
-  }
-
-  if (nickname) {
-    updateData.nickname = nickname;
-  }
-
-  const user = await this.usersRepository.update(id, updateData);
-  const responseItem: Omit<User, 'password'> = {
-    id: user.id,
-    email: user.email,
-    nickname: user.nickname,
-    // 다른 필드들...
-  };
-
-  return responseItem;
-}
 
   async getUserTestList(id: string, query: any): Promise<any> {
     const limit = query.limit;
