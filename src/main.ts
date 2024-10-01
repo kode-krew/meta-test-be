@@ -5,6 +5,8 @@ import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { BaseExceptionFilter } from 'src/core/filters/base-exception-filter';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +24,8 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
+  const swaggerJson = JSON.stringify(document, null, 2);
+  writeFileSync(join(process.cwd(), 'swagger-spec.json'), swaggerJson);
   SwaggerModule.setup('api', app, document);
 
   app.useGlobalPipes(
