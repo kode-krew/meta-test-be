@@ -1,0 +1,1649 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health-check": {
+      "get": {
+        "operationId": "HealthCheckController_checkHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "UserController_getUser",
+        "summary": "유저 정보 조회",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserInfoResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserInfoNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "UserController_createUser",
+        "summary": "회원가입",
+        "description": "유저 정보 등록",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserInfoRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUserInfoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "CreateUserInfoRequestBodyBadRequestError": {
+                    "value": {
+                      "message": "Unexpected end of JSON input",
+                      "error": "Bad Request"
+                    },
+                    "description": "요청 바디 형식이 맞지 않음"
+                  },
+                  "CreateUserInfoRequestBodyBadRequestError2": {
+                    "value": {
+                      "message": [
+                        "email should not be empty",
+                        "email must be an email",
+                        "password must be a string",
+                        "password must be longer than or equal to 8 characters"
+                      ],
+                      "error": "Bad Request"
+                    },
+                    "description": "유효하지 않은 요청 바디"
+                  },
+                  "CreateUserInfoRequestBodyBadRequestError3": {
+                    "value": {
+                      "message": "User exists",
+                      "error": "Bad Request"
+                    },
+                    "description": "이메일과 매칭되는 유저가 이미 존재함"
+                  },
+                  "CreateUserInfoRequestBodyBadRequestError4": {
+                    "value": {
+                      "message": "Invalid email verification",
+                      "error": "Bad Request"
+                    },
+                    "description": "올바르지 않은 이메일 검증"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "User exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUserInfoConflictError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      },
+      "patch": {
+        "operationId": "UserController_updateUser",
+        "summary": "유저 정보 수정",
+        "description": " ",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserInfoRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateUserInfoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "UpdateUserInfoRequestBodyBadRequestError": {
+                    "value": {
+                      "message": "At least one of nickname, gender, age is required.",
+                      "error": "Bad Request"
+                    },
+                    "description": "적어도 하나의 값이 요구됨"
+                  },
+                  "UpdateUserInfoRequestBodyBadRequestError2": {
+                    "value": {
+                      "message": [
+                        "email must be an email",
+                        "nickname must be a string",
+                        "age must be a number conforming to the specified constraints",
+                        "gender must be a string"
+                      ],
+                      "error": "Bad Request"
+                    },
+                    "description": "유효하지 않은 요청 바디"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/users/test": {
+      "get": {
+        "operationId": "UserController_geteUserTestList",
+        "summary": "유저 테스트 리스트 정보 조회",
+        "description": "",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "example": "10",
+            "description": "limit, minimum: 1",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "order by created_at",
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "desc",
+                "asc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "level",
+            "required": false,
+            "in": "query",
+            "description": "filter by level",
+            "schema": {
+              "default": "all",
+              "enum": [
+                "beginner",
+                "intermediate",
+                "advanced",
+                "all"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "startKey",
+            "required": false,
+            "in": "query",
+            "example": "eyJJZCI6IjIwNDA3YTRjLTJkNzktNGRkOC1iZDE3LTkyNzFhMzY3ZTk2YyIsIlNvcnRLZXkiOiJUZXN0IzIwMjQtMDMtMzBUMDE6NDQ6MTYuMDQ3WiJ9",
+            "description": "Base64 encoded startKey",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserTestListResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserTestListRequestQueryBadRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/users/test/{id}": {
+      "get": {
+        "operationId": "UserController_geteUserTest",
+        "summary": "유저 테스트 세부 정보 조회",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_key",
+            "required": true,
+            "in": "query",
+            "example": "Test_advanced_2024-04-20T01:19:42.998Z",
+            "description": "The sort key of the test",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserTestResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserTestRequestQueryBadRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserTestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/auth/token": {
+      "post": {
+        "operationId": "AuthController_createToken",
+        "summary": "로그인",
+        "description": "토큰 발급",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTokenRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTokenResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTokenRequestBodyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "User not found or password does not match",
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/token/refresh": {
+      "post": {
+        "operationId": "AuthController_refreshToken",
+        "summary": "토큰 재발급",
+        "description": "토큰 재발급",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenRequestBodyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Invalid token",
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/login/kakao": {
+      "get": {
+        "operationId": "AuthController_loginWithKakao",
+        "summary": "카카오 소셜로그인",
+        "description": "기가입 유저는 로그인, 신규 유저는 회원가입 진행",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/login/google": {
+      "get": {
+        "operationId": "AuthController_loginWithGoogle",
+        "summary": "구글 소셜로그인",
+        "description": "기가입 유저는 로그인, 신규 유저는 회원가입 진행",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/password": {
+      "patch": {
+        "operationId": "AuthController_updateUserPassword",
+        "summary": "비밀번호 초기화",
+        "description": "비밀번호 변경하고 이메일로 전송합니다.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetPasswordRequestBodyError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "User does not exist",
+                  "error": "Not Found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/email-verification": {
+      "post": {
+        "operationId": "AuthController_createEmailVerificaiton",
+        "summary": "이메일 인증 요청",
+        "description": "이메일 인증 요청 메일을 발송",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailVerificationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailVerificationResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailVerificationRequestBodyError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      },
+      "patch": {
+        "operationId": "AuthController_updateEmailVerificaiton",
+        "summary": "이메일 인증 검증",
+        "description": "임시토큰으로 이메일 인증을 검증",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEmailVerificationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateEmailVerificationRequestBodyError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "UpdateEmailVerificationUnauthorizedError": {
+                    "value": {
+                      "message": "Invalid request_id",
+                      "error": "Unauthorized"
+                    },
+                    "description": "request_id가 유효하지 않음"
+                  },
+                  "UpdateEmailVerificationUnauthorizedError2": {
+                    "value": {
+                      "message": "Invalid code",
+                      "error": "Unauthorized"
+                    },
+                    "description": "code가 유효하지 않음"
+                  },
+                  "UpdateEmailVerificationUnauthorizedError3": {
+                    "value": {
+                      "message": "Expired request_id",
+                      "error": "Unauthorized"
+                    },
+                    "description": "request_id가 만료됨"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/test": {
+      "post": {
+        "operationId": "TestController_createUserTest",
+        "summary": "테스트 결과 등록",
+        "description": "",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTestRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTestResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTestRequestBodyBadRequestError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "test"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Meta Test API",
+    "description": "The Meta Test API",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "GetUserInfoResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "422838ab-3a92-4e5f-914c-5eae24249a92",
+            "description": "The id of the user"
+          },
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com",
+            "description": "The email of the user"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "JohnDoe",
+            "description": "The nickname of the user"
+          },
+          "gender": {
+            "type": "string",
+            "example": "m",
+            "description": "The gender of the user"
+          },
+          "age": {
+            "type": "number",
+            "example": 20,
+            "description": "The age of the user"
+          },
+          "userType": {
+            "type": "string",
+            "example": "NORMAL",
+            "description": "유저 가입 유형(타입)"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "userType"
+        ]
+      },
+      "UnauthorizedError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "example": [
+              "No token",
+              "Invalid token",
+              "Token expired"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": "Unauthorized"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "GetUserInfoNotFoundError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "User does not exist"
+          },
+          "error": {
+            "type": "string",
+            "example": "Not Found"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "CreateUserInfoRequestDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "422838ab-3a92-4e5f-914c-5eae24249a92",
+            "description": "id"
+          },
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com",
+            "description": "The email of the user"
+          },
+          "password": {
+            "type": "string",
+            "example": "Password@1234",
+            "description": "The password of the user"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "JohnDoe",
+            "description": "The nickname of the user"
+          },
+          "gender": {
+            "type": "string",
+            "example": "m",
+            "description": "The gender of the user"
+          },
+          "age": {
+            "type": "number",
+            "example": 20,
+            "description": "The age of the user"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "CreateUserInfoResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "422838ab-3a92-4e5f-914c-5eae24249a92",
+            "description": "The id of the user"
+          },
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com",
+            "description": "The email of the user"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "JohnDoe",
+            "description": "The nickname of the user"
+          },
+          "gender": {
+            "type": "string",
+            "example": "m",
+            "description": "The gender of the user"
+          },
+          "age": {
+            "type": "number",
+            "example": 20,
+            "description": "The age of the user"
+          },
+          "userType": {
+            "type": "string",
+            "example": "NORMAL",
+            "description": "유저 가입 유형(타입)"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "userType"
+        ]
+      },
+      "CreateUserInfoConflictError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "User exists"
+          },
+          "error": {
+            "type": "string",
+            "example": "Conflict"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "UpdateUserInfoRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com",
+            "description": "The email of the user"
+          },
+          "nickname": {
+            "type": "string",
+            "example": "JohnDoe",
+            "description": "The nickname of the user"
+          },
+          "password": {
+            "type": "string",
+            "example": "NewPassword@1234",
+            "description": "The new password of the user"
+          }
+        }
+      },
+      "UpdateUserInfoResponseDto": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "example": "JohnDoe",
+            "description": "The nickname of the user"
+          },
+          "gender": {
+            "type": "string",
+            "example": "m",
+            "description": "The gender of the user"
+          },
+          "age": {
+            "type": "number",
+            "example": 20,
+            "description": "The age of the user"
+          },
+          "userType": {
+            "type": "string",
+            "example": "NORMAL",
+            "description": "유저 가입 유형(타입)"
+          }
+        },
+        "required": [
+          "userType"
+        ]
+      },
+      "Item": {
+        "type": "object",
+        "properties": {
+          "total_words": {
+            "example": [
+              "애플",
+              "메타",
+              "테슬라"
+            ],
+            "description": "The total words",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "total_count": {
+            "type": "number",
+            "example": 3,
+            "description": "The total count"
+          },
+          "correct_words": {
+            "example": [
+              "애플",
+              "메타",
+              "테슬라"
+            ],
+            "description": "The correct words",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "input_words": {
+            "example": [
+              "애플",
+              "메타",
+              "테슬라"
+            ],
+            "description": "The input words",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced",
+              "all"
+            ],
+            "description": "The level"
+          },
+          "expected_count": {
+            "type": "number",
+            "example": 1,
+            "description": "The expected count"
+          },
+          "category": {
+            "type": "string",
+            "example": "test",
+            "description": "The category"
+          },
+          "score": {
+            "type": "number",
+            "example": 0,
+            "description": "The score"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2024-03-30T01:44:00.232Z",
+            "description": "The creation date"
+          },
+          "id": {
+            "type": "string",
+            "example": "20407a4c-2d79-4dd8-bd17-9271a367e96c",
+            "description": "The ID"
+          },
+          "sort_key": {
+            "type": "string",
+            "example": "Test_beginner_2024-03-30T01:44:00.232Z",
+            "description": "The SortKey"
+          }
+        },
+        "required": [
+          "total_words",
+          "total_count",
+          "correct_words",
+          "input_words",
+          "level",
+          "expected_count",
+          "category",
+          "score",
+          "createdAt",
+          "id",
+          "sort_key"
+        ]
+      },
+      "GetUserTestListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "The list of items",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            }
+          },
+          "count": {
+            "type": "number",
+            "example": 1,
+            "description": "The count of items"
+          },
+          "lastEvaluatedKey": {
+            "type": "string",
+            "example": "eyJJZCI6IjIwNDA3YTRjLTJkNzktNGRkOC1iZDE3LTkyNzFhMzY3ZTk2YyIsIlNvcnRLZXkiOiJUZXN0IzIwMjQtMDMtMzBUMDE6NDQ6MDAuMjMyWiJ9",
+            "description": "The last evaluated key for pagination"
+          }
+        },
+        "required": [
+          "items",
+          "count"
+        ]
+      },
+      "GetUserTestListRequestQueryBadRequestError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "example": [
+              "limit must not be greater than 30",
+              "limit must not be less than 1",
+              "limit must be an integer number",
+              "order must be one of the following values: desc, asc",
+              "level must be one of the following values: beginner, intermediate, advanced, all"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "GetUserTestResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "422838ab-3a92-4e5f-914c-5eae24249a92",
+            "description": "The id of the user"
+          },
+          "sort_key": {
+            "type": "string",
+            "example": "Test_beginner_2024-04-20T01:19:42.998Z",
+            "description": "The sort key of the test"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced",
+              "all"
+            ],
+            "description": "level"
+          },
+          "score": {
+            "type": "number",
+            "example": 0.5,
+            "description": "score"
+          },
+          "total_count": {
+            "type": "number",
+            "example": 10,
+            "description": "total_count"
+          },
+          "expected_count": {
+            "type": "number",
+            "example": 5,
+            "description": "expected_count"
+          },
+          "correct_count": {
+            "type": "number",
+            "example": 5,
+            "description": "expected_count"
+          },
+          "total_words": {
+            "example": [
+              "word1",
+              "word2",
+              "word3",
+              "word4",
+              "word5"
+            ],
+            "description": "An array of total words for the test.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "input_words": {
+            "example": [
+              "word1",
+              "word2"
+            ],
+            "description": "An array of input words for the test.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "correct_words": {
+            "example": [
+              "word1"
+            ],
+            "description": "An array of correct words for the test.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "sort_key",
+          "level",
+          "score",
+          "total_count",
+          "expected_count",
+          "correct_count",
+          "total_words",
+          "input_words",
+          "correct_words"
+        ]
+      },
+      "GetUserTestRequestQueryBadRequestError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "example": [
+              "sort_key must be a string"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "GetUserTestNotFoundError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "User test does not exist"
+          },
+          "error": {
+            "type": "string",
+            "example": "Not Found"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "CreateTokenRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com",
+            "description": "The email of the user"
+          },
+          "password": {
+            "type": "string",
+            "example": "Password@1234",
+            "description": "The password of the user"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "CreateTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "example": "valid.access.token",
+            "description": "access token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "example": "valid.refresh.token",
+            "description": "refresh token"
+          }
+        },
+        "required": [
+          "access_token",
+          "refresh_token"
+        ]
+      },
+      "CreateTokenRequestBodyError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "example": [
+              "email should not be empty",
+              "email must be an email",
+              "password must be a string",
+              "password must be longer than or equal to 8 characters"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "RefreshTokenRequestDto": {
+        "type": "object",
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "example": "valid.refresh.token",
+            "description": "refresh token"
+          }
+        },
+        "required": [
+          "refresh_token"
+        ]
+      },
+      "RefreshTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "example": "valid.access.token",
+            "description": "access token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "example": "valid.refresh.token",
+            "description": "refresh token"
+          }
+        },
+        "required": [
+          "access_token",
+          "refresh_token"
+        ]
+      },
+      "RefreshTokenRequestBodyError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "example": [
+              "refresh_token must be a string",
+              "refresh_token should not be empty"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "ResetPasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com",
+            "description": "The email of the user"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ResetPasswordRequestBodyError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "example": [
+              "email should not be empty",
+              "email must be an email"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "EmailVerificationRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com",
+            "description": "The email of the user"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "EmailVerificationResponseDto": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "example": "e4e74363-c3ed-45fb-ba68-faad0ef45ab3"
+          }
+        },
+        "required": [
+          "request_id"
+        ]
+      },
+      "EmailVerificationRequestBodyError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "example": [
+              "email should not be empty",
+              "email must be an email"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "UpdateEmailVerificationRequestDto": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "example": "e4e74363-c3ed-45fb-ba68-faad0ef45ab3",
+            "description": "request id"
+          },
+          "code": {
+            "type": "number",
+            "example": 1234,
+            "description": "auth code"
+          }
+        },
+        "required": [
+          "request_id",
+          "code"
+        ]
+      },
+      "UpdateEmailVerificationRequestBodyError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "example": [
+              "request_id must be a string",
+              "request_id should not be empty",
+              "code must be a number conforming to the specified constraints",
+              "code should not be empty"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      },
+      "CreateTestRequestDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "422838ab-3a92-4e5f-914c-5eae24249a92",
+            "description": "id"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "beginner",
+              "intermediate",
+              "advanced",
+              "all"
+            ],
+            "description": "level"
+          },
+          "total_count": {
+            "type": "number",
+            "example": 10,
+            "description": "total_count"
+          },
+          "expected_count": {
+            "type": "number",
+            "example": 5,
+            "description": "expected_count"
+          },
+          "total_words": {
+            "example": [
+              "word1",
+              "word2",
+              "word3",
+              "word4",
+              "word5"
+            ],
+            "description": "An array of total words for the test.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "input_words": {
+            "example": [
+              "word1",
+              "word2"
+            ],
+            "description": "An array of input words for the test.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "total_count",
+          "expected_count",
+          "total_words",
+          "input_words"
+        ]
+      },
+      "CreateTestResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "422838ab-3a92-4e5f-914c-5eae24249a92",
+            "description": "The id of the user"
+          },
+          "sort_key": {
+            "type": "string",
+            "example": "Test_beginner_2024-04-20T01:19:42.998Z",
+            "description": "The sort key of the test"
+          }
+        },
+        "required": [
+          "id",
+          "sort_key"
+        ]
+      },
+      "CreateTestRequestBodyBadRequestError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "example": [
+              "level must be one of the following values: beginner, intermediate, advanced, all",
+              "level must be a string",
+              "total_count must not be greater than 30",
+              "total_count must not be less than 1",
+              "total_count must be an integer number",
+              "expected_count must not be greater than 30",
+              "expected_count must not be less than 0",
+              "expected_count must be an integer number",
+              "each value in total_words must be a string",
+              "total_words must be an array",
+              "each value in input_words must be a string",
+              "input_words must be an array"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          }
+        },
+        "required": [
+          "message",
+          "error"
+        ]
+      }
+    }
+  }
+}
