@@ -1,6 +1,7 @@
 import {
   GetCommandOutput,
   QueryCommandOutput,
+  ScanCommandOutput,
   UpdateCommandOutput,
 } from '@aws-sdk/lib-dynamodb';
 import { Inject, Injectable } from '@nestjs/common';
@@ -10,7 +11,7 @@ import { UserType } from 'src/types/userType';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
 
-interface UserInfo {
+export interface UserInfo {
   id?: string;
   email: string;
   password: string;
@@ -29,6 +30,42 @@ export class UserRepository {
   private tableName: string;
   constructor(@Inject('DYNAMODB') private dynamoDb) {
     this.tableName = process.env.AWS_DYNAMODB_TABLE_NAME;
+  }
+
+  async findAllUsers(): Promise<User[]> {
+    try {
+      // 먼저 모든 데이터를 가져와서 로그로 확인
+      const allData: ScanCommandOutput = await this.dynamoDb.scan({
+        TableName: this.tableName,
+      });
+      console.log('All DynamoDB data:', JSON.stringify(allData.Items, null, 2));
+
+      // 그 다음 UserInfo 데이터만 필터링
+      const result: ScanCommandOutput = await this.dynamoDb.scan({
+        TableName: this.tableName,
+        FilterExpression: 'attribute_exists(email)',
+      });
+
+      console.log(
+        'Filtered UserInfo data:',
+        JSON.stringify(result.Items, null, 2),
+      );
+
+      if (!result.Items || result.Items.length === 0) {
+        console.log('No users found in DynamoDB');
+        return [];
+      }
+
+      return result.Items.map((item) => ({
+        id: item.PK,
+        email: item.email,
+        nickname: item.nickname,
+        ...item,
+      }));
+    } catch (e) {
+      console.error('Error in findAllUsers:', e);
+      throw new DatabaseError();
+    }
   }
 
   async findOneById(id: string): Promise<UserInfo | null> {
