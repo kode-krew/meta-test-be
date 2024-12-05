@@ -1,13 +1,19 @@
-import { ApiProperty } from '@nestjs/swagger';
+export class CreateUserInfoBadRequestError {
+  message: string;
+  error: string;
+
+  constructor() {
+    this.message = 'Invalid request body';
+    this.error = 'Bad Request';
+  }
+}
 
 export class CreateUserInfoConflictError {
-  @ApiProperty({
-    example: 'User exists',
-  })
   message: string;
+  error: string;
 
-  @ApiProperty({
-    example: 'Conflict',
-  })
-  error: 'Conflict';
+  constructor() {
+    this.message = 'User exists';
+    this.error = 'Conflict';
+  }
 }
