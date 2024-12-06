@@ -48,7 +48,8 @@ export class UserRepository {
 
       console.log(
         'Filtered UserInfo data:',
-        JSON.stringify(result.Items, null, 2),
+        // JSON.stringify(result.Items, null, 2),
+        result.Items,
       );
 
       if (!result.Items || result.Items.length === 0) {
@@ -60,7 +61,7 @@ export class UserRepository {
         id: item.PK,
         email: item.email,
         nickname: item.nickname,
-        ...item,
+        password: item.password,
       }));
     } catch (e) {
       console.error('Error in findAllUsers:', e);

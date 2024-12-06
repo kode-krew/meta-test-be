@@ -83,20 +83,8 @@ export class UserService {
     return hashedPassword;
   }
 
-  async getAllUsers(): Promise<User[]> {
-    const users = await this.usersRepository.findAllUsers();
-    console.log('DynamoDB users:', JSON.stringify(users, null, 2));
-    const mappedUsers = users.map((user) => {
-      console.log('Processing user:', JSON.stringify(user, null, 2));
-      return {
-        id: user.id,
-        email: user.email,
-        nickname: user.nickname,
-        ...user,
-      };
-    });
-    console.log('Mapped users:', JSON.stringify(mappedUsers, null, 2));
-    return mappedUsers;
+  async getAllUsers() {
+    return await this.usersRepository.findAllUsers();
   }
 
   async update(
