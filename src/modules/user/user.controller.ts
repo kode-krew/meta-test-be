@@ -1,44 +1,44 @@
 import {
-  Controller,
-  Request,
-  Post,
-  Get,
-  Patch,
   Body,
-  Param,
+  Controller,
+  Get,
   HttpCode,
   HttpStatus,
-  UseGuards,
+  Param,
+  Patch,
+  Post,
   Query,
+  Request,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiResponse,
-  ApiOperation,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
-import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { UnauthorizedError } from 'src/core/errors/unauthorized-error';
+import { UserType } from 'src/types/userType';
+import { Order, TestLevel } from '../test/test.entity';
 import { CreateUserInfoRequestDto } from './dto/create-user-info-request.dto';
 import { CreateUserInfoResponseDto } from './dto/create-user-info-response.dto';
 import { GetUserInfoResponseDto } from './dto/get-user-info-response.dto';
-import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
-import { UpdateUserInfoResponseDto } from './dto/update-user-info-response.dto';
 import { GetUserTestListQueryDto } from './dto/get-user-test-list-query.dto';
 import { GetUserTestListResponseDto } from './dto/get-user-test-list-response.dto';
-import { TestLevel, Order } from '../test/test.entity';
-import { UnauthorizedError } from 'src/core/errors/unauthorized-error';
-import { GetUserInfoNotFoundError } from './error/get-user-info-error';
 import { GetUserTestQueryDto } from './dto/get-user-test-query.dto';
+import { GetUserTestResponseDto } from './dto/get-user-test-response.dto';
+import { UpdateUserInfoRequestDto } from './dto/update-user-info-request.dto';
+import { UpdateUserInfoResponseDto } from './dto/update-user-info-response.dto';
+import { CreateUserInfoConflictError } from './error/create-user-info-error';
+import { GetUserInfoNotFoundError } from './error/get-user-info-error';
 import {
   GetUserTestNotFoundError,
   GetUserTestRequestQueryBadRequestError,
 } from './error/get-user-test-error';
-import { GetUserTestResponseDto } from './dto/get-user-test-response.dto';
-import { CreateUserInfoConflictError } from './error/create-user-info-error';
 import { GetUserTestListRequestQueryBadRequestError } from './error/get-user-test-list-error';
-import { UserType } from 'src/types/userType';
+import { UserService } from './user.service';
 
 @ApiTags('users')
 @Controller({ path: 'users' })
@@ -199,8 +199,6 @@ export class UserController {
     @Request() req,
     @Body(
       new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
         transform: true,
       }),
     )
