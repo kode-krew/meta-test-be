@@ -1,18 +1,20 @@
-import 'dotenv/config';
-import { NestFactory, Reflector } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
-import { BaseExceptionFilter } from 'src/core/filters/base-exception-filter';
+import 'dotenv/config';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+import { BaseExceptionFilter } from 'src/core/filters/base-exception-filter';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // set CORS
   app.enableCors({
-    origin: true,
+    origin: ['https://www.meta-cognition.site', 'http://localhost:3000'], // 허용하고자 하는 도메인만 명시
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type', 'Accept'],
     credentials: true,
     exposedHeaders: ['Authorization'],
   });
